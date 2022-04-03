@@ -36,7 +36,8 @@ SECRET_KEY = 'secret_key_placeholder'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['DOMAIN_PLACEHOLDER', 'IP_PLACEHOLDER']
+CSRF_TRUSTED_ORIGINS = ['https://DOMAIN_PLACEHOLDER', 'https://IP_PLACEHOLDER']
 
 
 # Application definition
