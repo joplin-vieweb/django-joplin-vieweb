@@ -36,8 +36,14 @@ SECRET_KEY = 'secret_key_placeholder'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['DOMAIN_PLACEHOLDER', 'IP_PLACEHOLDER']
-CSRF_TRUSTED_ORIGINS = ['https://DOMAIN_PLACEHOLDER', 'https://IP_PLACEHOLDER']
+origins = [ORIGINS_PLACEHOLDER]
+ALLOWED_HOSTS = origins
+CSRF_TRUSTED_ORIGINS = []
+for origin in origins:
+     CSRF_TRUSTED_ORIGINS.append('https://' + origin)
+
+print("ALLOWED_HOSTS = ", ALLOWED_HOSTS)
+print("CSRF_TRUSTED_ORIGINS = ", CSRF_TRUSTED_ORIGINS)
 
 
 # Application definition
