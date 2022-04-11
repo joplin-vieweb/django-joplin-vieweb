@@ -24,7 +24,7 @@ LOGGING = {
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path("/app")
+BASE_DIR = Path(__file__).resolve().parent.parent
 # print(f"BASE_DIR={BASE_DIR}")
 
 # Quick-start development settings - unsuitable for production

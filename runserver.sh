@@ -3,10 +3,10 @@
 django-admin startproject server .
 rm ./server/settings.py
 rm ./server/urls.py
-cp ./settings/urls_production.py ./server/urls.py
+cp ./settings/urls-production.py ./server/urls.py
 if [ ! -e /root/.config/joplin-vieweb/settings.py ]
 then
-    cp ./settings/production.py /root/.config/joplin-vieweb/settings.py
+    cp ./settings/settings-production.py /root/.config/joplin-vieweb/settings.py
     secret_key=$(python -c "from django.core.management.utils import get_random_secret_key;print(get_random_secret_key())")
     sed -i "s/secret_key_placeholder/$secret_key/" /root/.config/joplin-vieweb/settings.py
     sed -i "s/ORIGINS_PLACEHOLDER/$ORIGINS/" /root/.config/joplin-vieweb/settings.py

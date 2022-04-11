@@ -109,23 +109,7 @@ And the full featured "vuejs" branch: I just didn't succeed to set it up (neithe
 Thanks for joplin-api that helped me !
 
 ## For dev: how to setup a dev server around this "package"
-Execute script setup_dev_env.sh  
-Then: check joplin ressource path in server/settings.py (STATICFILES_DIRS), and ALLOWED_HOSTS.  
-If you choose `JOPLIN_LOGIN_REQUIRED=True`, then: :add 
-```python
-urlpatterns = [
-    ...
-    path('accounts/', include('django.contrib.auth.urls')),
-]
-```
-
-Then:  
-```
-. venv/bin/activate
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver 0:8000
-```
+To debug: docker-compose up on docker-compose.debug.py, then launch debug target "Python: attach" on vscode.
 
 ## Thanks to azure for free domain name
 [![Nom de domaine](http://www.azote.org/pub/azote_120_60_bleu.gif)](https://www.azote.org/)
