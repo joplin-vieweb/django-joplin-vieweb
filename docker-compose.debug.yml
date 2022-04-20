@@ -7,16 +7,31 @@ services:
       context: .
       dockerfile: ./Dockerfile-dev
     command: ["sh", "-c", "pip install debugpy -t /tmp && python manage.py collectstatic --noinput && python manage.py migrate && python /tmp/debugpy --wait-for-client --listen 0.0.0.0:5678 manage.py runserver 0.0.0.0:8001 --nothreading --noreload"]
+    # command: ["/bin/sh"]
+    # stdin_open: true
+    # tty: true 
     depends_on:
       - joplin-terminal-xapi
     volumes:
       - joplin-dev:/root/.config/joplin:ro
+      - type: bind
+        source: ./joplin_vieweb
+        target: /app/joplin_vieweb
+        read_only: true
     ports:
       - 8001:8001
       - 5678:5678
 
   joplin-terminal-xapi:
-    build: ../joplin-terminal-xapi
+    build: 
+      context: ../joplin-terminal-xapi
+      dockerfile: Dockerfile-dev
+    # environment:
+    #   NODE_ENV: development
+    # command: ["node", "--inspect=0.0.0.0:9229", "app.js"]
+    ports:
+      - 8081:8081
+      - 9229:9229
     volumes:
       - joplin-dev:/root/.config/joplin
 

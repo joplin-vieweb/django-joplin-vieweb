@@ -2,9 +2,8 @@ from joppy.api import Api
 import logging
 import json
 import re
-import pathlib
 from django.conf import settings
-
+from joplin_vieweb import joplin_x_api
 from joplin_vieweb.utils import get_api_token
 
 
@@ -45,6 +44,8 @@ class Joplin:
             token=get_api_token(),
             url="{}:{}".format(settings.JOPLIN_SERVER_URL, settings.JOPLIN_SERVER_PORT)
         )
+        self.joplin_x_api = joplin_x_api.Api(url=f"{settings.JOPLIN_SERVER_URL}:8081")
+        # self.joplin_x_api = joplin_x_api.Api(url="http://172.17.0.2:49159")
         self.rootNotebook = None
         
     def parse_notebooks(self):
@@ -245,6 +246,31 @@ class Joplin:
     def delete_note(self, note_id):
         self.joplin.delete_note(note_id)
 
+    def get_config(self):
+        return self.joplin_x_api.get_conf()
+
+    def _joplin_vieweb_to_joplin_conf(self, joplin_vw_conf):
+        joplin_config = {}
+        password: str = joplin_vw_conf["password"]
+        if password.replace("*", ""):
+            joplin_config["sync.5.password"] = password
+        joplin_config["sync.target"] = joplin_vw_conf["target"]
+        joplin_config["sync.5.path"] = joplin_vw_conf["path"]
+        joplin_config["sync.5.username"] = joplin_vw_conf["username"]
+        joplin_config["sync.interval"] = joplin_vw_conf["interval"]
+        if joplin_config["sync.target"] != "5" and joplin_config["sync.target"] != "0":
+            raise Exception("Only nextcloud target is supported.")
+        return joplin_config
+
+
+    def set_config(self, config_data):
+        # config_data are cleaned_data of a valid ConfigForm
+        joplin_config = self._joplin_vieweb_to_joplin_conf(config_data)
+        return self.joplin_x_api.set_conf(joplin_config)
+
+    def test_config(self, config_data):
+        joplin_config = self._joplin_vieweb_to_joplin_conf(config_data)
+        return self.joplin_x_api.test_conf(joplin_config).json()
 
 if __name__ == "__main__":
     nb1 = Notebook()

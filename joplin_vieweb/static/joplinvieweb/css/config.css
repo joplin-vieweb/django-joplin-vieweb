@@ -1,0 +1,37 @@
+.label {
+    font-weight: bold;
+    margin-top: 1em;
+    display: inline-block;
+}
+.tip {
+    font-size: 0.9em;
+    color: grey;
+    font-style: italic;
+}
+.submit {
+    color: #f41;
+    font-weight: bold;
+    border-color: #f41;
+    border-radius: 5px;
+}
+.waiting {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) 
+                url('../img/progress.gif') 
+                50% 50% 
+                no-repeat;
+    background-size: 128px;
+}
+body.loading .waiting {
+    overflow: hidden;
+    display: block;
+}
+#config_fields.disabled {
+    opacity: 0.3;
+}

@@ -4,6 +4,9 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.http import JsonResponse
+
+from joplin_vieweb.forms import ConfigForm
 from .joplin import Joplin, ReprJsonEncoder
 import logging
 import json
@@ -357,3 +360,49 @@ def get_hyperlink_preview_image(request, link):
     if data is None:
         return HttpResponseNotFound("")
     return HttpResponse(json.dumps(data))
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED) 
+def config(request):
+    joplin = Joplin()
+    if request.method == 'GET':
+        config = joplin.get_config()
+        config["username"] = config["user"]
+        for key, value in config.items():
+            if value == ".":
+                config[key] = ""
+        config_form = ConfigForm(config)
+        return render(request, 'joplinvieweb/config.html', {"form": config_form})
+    
+    if request.method == 'POST':
+        config_form = ConfigForm(request.POST)
+        if config_form.data["target"] != "5":
+            try:
+                joplin.set_config({"target": "0", "path": ".", "username": ".", "password":".", "interval": "0"})
+                return JsonResponse({"status": True} )
+            except Exception as e:
+                return JsonResponse({"status": False, "message": str(e)})
+        if config_form.is_valid():
+            try:
+                joplin.set_config(config_form.cleaned_data)
+                return JsonResponse({"status": True} )
+            except Exception as e:
+                return JsonResponse({"status": False, "message": str(e)})
+        else:
+            return JsonResponse({
+                                    "status": False,
+                                    "message": "data are not valid: " + str(config_form.errors)
+                                })
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED) 
+def config_test(request):
+    if request.method == 'POST':
+        joplin = Joplin()
+        config_form = ConfigForm(request.POST)
+        if config_form.is_valid():
+            try:
+                ret = joplin.test_config(config_form.cleaned_data)
+                return JsonResponse(ret)
+            except Exception as e:
+                return JsonResponse({"status": False, "message": str(e)})
+        else:
+            return JsonResponse({"status": False, "message": f"Invalid data:\n{config_form.errors}"})
