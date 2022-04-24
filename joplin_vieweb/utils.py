@@ -48,73 +48,6 @@ def mimetype_to_icon(mimetype):
         if mime_type in mimetype:
             return "icon-" + icon_name
     return 'icon-file-empty'
-    
-def sync_enable():
-    return hasattr(settings, 'JOPLIN_SYNC_PERIOD_S')
-    
-def start_synchronize_joplin():
-    if sync_enable():
-        logging.info("Start joplin periodic synchro ({}s)".format(settings.JOPLIN_SYNC_PERIOD_S))
-        # threading.Thread(target=synchronize_joplin_loop, args=(settings.JOPLIN_SYNC_PERIOD_S, settings.JOPLIN_SYNC_INFO_FILE)).start()
-        # todo: synchro with joplin-terminal-xapi
-    else:
-        logging.info("No joplin periodic synchro")
-    
-    
-def synchronize_joplin_loop(period_s, info_file):
-    while True:
-        JoplinSync.joplin_sync(info_file)
-        time.sleep(period_s)
-        
-class JoplinSync:
-    output = ""
-    err = ""
-    __lock = threading.Lock()
-
-    @staticmethod
-    def joplin_sync(info_file):
-        return 
-        logging.debug("+++++++++++++++++-> Start Joplin synchro")
-        JoplinSync.output = ""
-        JoplinSync.err = ""
-        sync_info = Path(info_file)
-        with open(sync_info, "w") as content:
-            content.write("ongoing")
-        process = subprocess.Popen(["joplin", "sync"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        #process = subprocess.Popen(["python", "c:\\Users\\FRGUNI0\\temp\\joplinsync\\sync.py"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        for line in iter(process.stdout.readline, b''):
-            JoplinSync.append_output(line.decode("utf-8").rstrip())
-        for line in iter(process.stderr.readline, b''):
-            JoplinSync.append_err(line.decode("utf-8").rstrip())
-        last_synchro = datetime.datetime.now().strftime("%d %b %Y %H:%M")
-        with open(sync_info, "w") as content:
-            content.write(last_synchro)
-        logging.debug("------------------> Joplin synchro done")
-
-    @staticmethod
-    def append_output(line):
-        with JoplinSync.__lock:
-            JoplinSync.output = JoplinSync.output + "\n" + line
-            logging.debug("Sync output: " + JoplinSync.output)
-
-    @staticmethod
-    def append_err(line):
-        with JoplinSync.__lock:
-            JoplinSync.err = JoplinSync.err + "\n" + line
-            logging.debug("Sync err: " + JoplinSync.err)
-
-    @staticmethod
-    def get_output():
-        with JoplinSync.__lock:
-            return JoplinSync.output
-
-    @staticmethod
-    def get_err():
-        with JoplinSync.__lock:
-            return JoplinSync.err
-
-    
-
 
 
 def markdown_public_ressource(md):
@@ -126,6 +59,7 @@ def markdown_public_ressource(md):
     md = md.replace('src=":/', 'src="' + path_to_ressources)
 
     return md
+
    
 def markdown_joplin_to_vieweb(md, public):
     """
@@ -164,6 +98,7 @@ def markdown_vieweb_to_joplin(md):
 
     return md
 
+
 def md_to_html(md, for_preview):
     html = markdown.markdown(md, extensions=[
         'fenced_code', 'codehilite', 'toc', 'markdown.extensions.tables', 'pymdownx.mark', 'pymdownx.tabbed'])
@@ -186,7 +121,7 @@ api_token = ""
 def get_api_token():
     global api_token
     if not api_token:
-        with open("/root/.config/joplin/settings.json") as settings:
-            settings_json = json.load(settings)
+        with open(f"{settings.JOPLIN_JOPLIN_PATH}/settings.json") as joplin_settings:
+            settings_json = json.load(joplin_settings)
             api_token = settings_json["api.token"]
     return api_token

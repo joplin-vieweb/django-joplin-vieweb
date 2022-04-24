@@ -9,6 +9,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="{% static 'joplinvieweb/css/joplin.css' %}">
 <link rel="stylesheet" href="{% static 'joplinvieweb/css/config.css' %}">
+<link rel="stylesheet" href="{% static 'joplinvieweb/css/style-icomoon.css' %}">
 <link rel="stylesheet" href="{% static 'joplinvieweb/css/jquery.modal.min.css' %}" />
 <link rel="stylesheet" href="{% static 'joplinvieweb/css/popup.css' %}" />
 <script src="{% static 'joplinvieweb/js/jquery-3.6.0.min.js' %}"></script>
@@ -19,9 +20,22 @@
 </script>
 <script src="{% static 'joplinvieweb/js/config.js' %}"></script>
 <body>
-    
-    
-    
+    <div id="joplin_container">
+        <div id="side_ctn">
+            <div id="notebooks_tree_ctn">
+                <div class="accordion_header header not_sync_header">
+                    <span class="icon-cog"></span>
+                    &nbsp;&nbsp;Settings
+                </div>
+                    <div class="accordion-inner" id="">
+                        Back to Joplin<br>
+                        <div id="back_action">
+                            <a href="/joplin"><div class="icon-circle-left"></div></a>
+                        </div>
+                    </div>
+            </div>
+        </div>
+
     <div id="note_view_ctn">
         <div class="note_view_header header">
             <span id="note_header_title">Joplin Vieweb configuration</span>
@@ -48,6 +62,13 @@
             <input class="submit" type="submit" value="Save">
         </form>
     </div>
+</div>
+
+
+
+
+
+
 </div>
 
 <!-- Modal stuff -->

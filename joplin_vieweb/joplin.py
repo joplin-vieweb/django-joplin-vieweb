@@ -42,10 +42,9 @@ class Joplin:
     def __init__(self):
         self.joplin = Api(
             token=get_api_token(),
-            url="{}:{}".format(settings.JOPLIN_SERVER_URL, settings.JOPLIN_SERVER_PORT)
+            url=settings.JOPLIN_DATA_API_URL
         )
-        self.joplin_x_api = joplin_x_api.Api(url=f"{settings.JOPLIN_SERVER_URL}:8081")
-        # self.joplin_x_api = joplin_x_api.Api(url="http://172.17.0.2:49159")
+        self.joplin_x_api = joplin_x_api.Api(url=settings.JOPLIN_X_API_URL)
         self.rootNotebook = None
         
     def parse_notebooks(self):
@@ -271,6 +270,12 @@ class Joplin:
     def test_config(self, config_data):
         joplin_config = self._joplin_vieweb_to_joplin_conf(config_data)
         return self.joplin_x_api.test_conf(joplin_config).json()
+
+    def start_synch(self):
+        self.joplin_x_api.start_synch()
+
+    def get_synch(self):
+        return self.joplin_x_api.get_synch()
 
 if __name__ == "__main__":
     nb1 = Notebook()

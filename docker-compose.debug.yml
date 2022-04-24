@@ -2,7 +2,6 @@ version: '3.4'
 
 services:
   djangojoplinvieweb:
-    image: djangojoplinvieweb
     build:
       context: .
       dockerfile: ./Dockerfile-dev
@@ -14,6 +13,7 @@ services:
       - joplin-terminal-xapi
     volumes:
       - joplin-dev:/root/.config/joplin:ro
+      - joplin-vieweb-dev:/root/.config/joplin-vieweb
       - type: bind
         source: ./joplin_vieweb
         target: /app/joplin_vieweb
@@ -37,3 +37,4 @@ services:
 
 volumes:
   joplin-dev:
+  joplin-vieweb-dev:

@@ -60,7 +60,6 @@ const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
             &nbsp;&nbsp;Tags</div>
             <div class="accordion-inner" id="tags"></div>
         </div>
-        {% if sync_enable %}
         <div id="sync_ctn">
             <div class="accordion_header header">
                 <span class="icon-refresh"></span>
@@ -77,7 +76,14 @@ const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                 </div>
             </div>
         </div>
-        {% endif %}
+        <div id="settings_ctn">
+            <a href="/joplin/config">
+                <div class="accordion_header header">
+                    <span class="icon-cog"></span>
+                    &nbsp;&nbsp;Settings
+                </div>
+            </a>
+        </div>
     </div>
     <div id="notes_list_ctn">
         <div class="notes_list_section section_2">

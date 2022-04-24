@@ -30,3 +30,8 @@ class Api():
     def test_conf(self, config_data):
         return self._request("post", "joplin/config/test", data=config_data)
 
+    def start_synch(self):
+        self._request("post", "joplin/synch/")
+
+    def get_synch(self):
+        return self._request("get", "joplin/synch").json()

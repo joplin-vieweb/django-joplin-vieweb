@@ -35,3 +35,22 @@ body.loading .waiting {
 #config_fields.disabled {
     opacity: 0.3;
 }
+#back_action {
+    font-size: 1.5em;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: inline-block;
+    padding: 2px 20px 2px 20px;
+    border: 1px solid white;
+    border-radius: 5px;
+    box-shadow: 1px 1px 1px lightgrey;
+    cursor: pointer;
+}
+#back_action a {
+    text-decoration: none;
+    color: inherit;
+}
+.accordion-inner {
+    text-align: center;
+    color: #E3E3E3;
+}

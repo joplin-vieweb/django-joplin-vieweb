@@ -57,6 +57,10 @@ html, body {
 }
 #notebooks_tree_ctn {
 }
+#settings_ctn a {
+    text-decoration: none;
+    color: inherit;
+}
 #notebooks_tree, #tags, #sync {
     background-color: #313640;
     overflow: auto;
@@ -94,6 +98,7 @@ html, body {
 #sync_action {
     font-size: 1.5em;
     margin-top: 10px;
+    margin-bottom: 10px;
     display: inline-block;
     padding: 2px 20px 2px 20px;
 }

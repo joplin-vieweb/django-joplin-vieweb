@@ -13,7 +13,7 @@ import json
 from bs4 import BeautifulSoup 
 from pathlib import Path
 import mimetypes
-from .utils import JoplinSync, mimetype_to_icon, sync_enable, markdown_public_ressource, md_to_html
+from .utils import mimetype_to_icon, markdown_public_ressource, md_to_html
 import threading
 from .edit_session import EditSession
 from .lasts_notes import LastsNotes
@@ -31,7 +31,7 @@ def conditional_decorator(dec, condition):
 
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def index(request):
-    return render(request, 'joplinvieweb/index.html', {"sync_enable": sync_enable()})
+    return render(request, 'joplinvieweb/index.html')
     
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def notebooks(request):
@@ -225,7 +225,7 @@ def joplin_public_ressource(request, ressource_path):
     try:
         joplin = Joplin()
         name = joplin.get_ressource_name(ressource_path)
-        ressources_path = settings.JOPLIN_RESSOURCES_PATH
+        ressources_path = f"{settings.JOPLIN_JOPLIN_PATH}/resources/"
         file_path = Path(ressources_path) / Path(ressource_path)
         file_path = glob.glob("{}*".format(file_path))[0]
         file_path = Path(file_path)
@@ -269,21 +269,14 @@ def tag_notes(request, tag_id):
     
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
 def sync_data(request):
-    return HttpResponse(json.dumps({"info": "todo", "output": "todo", "error": "todo"}))
-    # sync_info = "N/A"
-    # try:
-    #     with open(settings.JOPLIN_SYNC_INFO_FILE, "r") as sync_info_content:
-    #         sync_info = sync_info_content.read()
-    # except:
-    #     logging.error("cannot read synchro file " + settings.JOPLIN_SYNC_INFO_FILE)
-        
-    # return HttpResponse(json.dumps({"info": sync_info, "output": JoplinSync.get_output(), "error": JoplinSync.get_err()}))
+    joplin = Joplin()
+    joplin.get_synch()
+    return HttpResponse(json.dumps(joplin.get_synch()))
 
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
 def do_sync(request):
-    # task = threading.Thread(target=JoplinSync.joplin_sync, args=(settings.JOPLIN_SYNC_INFO_FILE,))
-    # task.daemon = True
-    # task.start()
+    joplin = Joplin()
+    joplin.start_synch()
     return HttpResponse("Sync started")
 
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  

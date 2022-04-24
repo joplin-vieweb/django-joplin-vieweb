@@ -45,7 +45,3 @@ urlpatterns = [
     path('config/', views.config, name='config'),
     path('config/test/', views.config_test, name='test config')
 ]
-
-
-# One time launched code
-start_synchronize_joplin()

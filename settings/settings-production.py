@@ -24,7 +24,7 @@ LOGGING = {
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).parent.parent
 # print(f"BASE_DIR={BASE_DIR}")
 
 # Quick-start development settings - unsuitable for production
@@ -141,11 +141,11 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Joplin variables
-JOPLIN_SERVER_URL="http://joplin-terminal-xapi"
-JOPLIN_SERVER_PORT=8080
 JOPLIN_LOGIN_REQUIRED=True
-JOPLIN_RESSOURCES_PATH="/root/.config/joplin/resources/"
+JOPLIN_JOPLIN_PATH="/root/.config/joplin"
 JOPLIN_JOPLINVIEWEB_PATH="/root/.config/joplin-vieweb"
+JOPLIN_DATA_API_URL="http://joplin-terminal-xapi:8080"
+JOPLIN_X_API_URL="http://joplin-terminal-xapi:8081"
 JOPLIN_SYNC_PERIOD_S=86400 # once a day
 JOPLIN_NOTES_HISTORY_DEPTH=10
 

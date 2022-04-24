@@ -303,6 +303,7 @@ class SideBar extends EventEmitter{
             this.sync_polling.pause_emit();
             this.not_sync_header_readonly();
             super.emit("please hide notes history");
+            this.sync_polling.process_sync_data("ongoing")
         }
         this.udpate_sync_started();
         super.emit("sync_started");
@@ -753,17 +754,23 @@ class SyncPolling extends EventEmitter {
      */
     process_sync_data(data) {
         if (data == "ongoing") {
+            console.log("ongoing..." + "sync_ongoing = " + this.sync_ongoing);
             if ((this.sync_ongoing == null) || (this.sync_ongoing == false)) {
+                console.log("synch ongoing = true");
                 this.sync_ongoing = true;
                 if (this.pause == false) {
+                    console.log("emit sync started");
                     super.emit('sync_started')
                 }
             }
         }
         else {
+            console.log("" + data + "..." + "sync_ongoing = " + this.sync_ongoing);
             if ((this.sync_ongoing == null) || (this.sync_ongoing == true)) {
+                console.log("synch ongoing = false");
                 this.sync_ongoing = false;
                 if (this.pause == false) {
+                    console.log("emit sync_over");
                     super.emit('sync_over', data);
                 }
             }

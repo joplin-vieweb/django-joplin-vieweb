@@ -77,12 +77,8 @@ Configure it and start it.
 5. Add some variable in your project settings.py:
    ```
    # Joplin variables
-   JOPLIN_SERVER_URL="http://127.0.0.1"
-   JOPLIN_SERVER_PORT=41184
-   JOPLIN_RESSOURCES_PATH="/home/pi/.config/joplin/resources/"
    JOPLIN_LOGIN_REQUIRED=True # set to True only if you require a logged user for accessing the notes
    JOPLIN_SYNC_PERIOD_S=86400 # once a day
-   JOPLIN_SYNC_INFO_FILE="/home/pi/.config/joplin/joplin_vieweb_sync_info"
    JOPLIN_NOTES_HISTORY_DEPTH = 10
    ```
 6. If you set JOPLIN_LOGIN_REQUIRED=True
