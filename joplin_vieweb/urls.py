@@ -1,5 +1,4 @@
 from django.urls import path
-from .utils import start_synchronize_joplin
 from . import views
 
 app_name = 'joplin'
