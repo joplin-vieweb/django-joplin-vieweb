@@ -1,3 +1,5 @@
+# "source": https://docs.docker.com/ci-cd/github-actions/
+
 name: CI
 
 # Controls when the workflow will run
@@ -19,35 +21,26 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     
-      - name: semantic-versioning-tag
-        uses: LongOddCode/semantic-versioning-tag@0.7.0
-        id: svt
-        
-      - name: validation and set params
-        run: |
-            echo ${{ steps.svt.outputs.major }}
-            echo ${{ steps.svt.outputs.minor }}
-            echo ${{ steps.svt.outputs.patch }}
-            echo ${{ steps.svt.outputs.prerelease }}
-            echo ${{ steps.svt.outputs.buildmetadata }}
+      - name: Get version from tag
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-      # # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      # - uses: actions/checkout@v3
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
       
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v1.14.1
-      #   with:
-      #     username: ${{ secrets.DOCKER_HUB_USERNAME }}
-      #     password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1.14.1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
         
-      # - name: Build and push
-      #   uses: docker/build-push-action@v2.10.0
-      #   with:
-      #     context: ./
-      #     file: ./Dockerfile
-      #     builder: ${{ steps.buildx.outputs.name }}
-      #     push: true
-      #     tags:
-      #         ${{ secrets.DOCKER_HUB_USERNAME }}/django-joplin-vieweb:latest,${{ secrets.DOCKER_HUB_USERNAME }}/django-joplin-vieweb:{{ version }}
-      #     cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/django-joplin-vieweb :buildcache
-      #     cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/django-joplin-vieweb :buildcache,mode=max
+      - name: Build and push
+        uses: docker/build-push-action@v2.10.0
+        with:
+          context: ./
+          file: ./Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags:
+              ${{ secrets.DOCKER_HUB_USERNAME }}/django-joplin-vieweb:$RELEASE_VERSION
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/django-joplin-vieweb :buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/django-joplin-vieweb :buildcache,mode=max
