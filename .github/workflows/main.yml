@@ -44,6 +44,6 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags:
-              ${{ secrets.DOCKER_HUB_USERNAME }}/django-joplin-vieweb:${RELEASE_VERSION}
+              ${{ secrets.DOCKER_HUB_USERNAME }}/django-joplin-vieweb:${{ env.RELEASE_VERSION }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/django-joplin-vieweb:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/django-joplin-vieweb:buildcache,mode=max
