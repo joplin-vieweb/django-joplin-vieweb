@@ -8,7 +8,11 @@ class Api():
             self.url = self.url + "/"
 
     def _request(self, method: str, path: str, data = None) -> requests.models.Response:
-        logging.debug(f"joplin-x-api: {method} request: path={path}, data={data}")
+        password_safe_data = None
+        if data is not None:
+            password_safe_data = {key: value if not "password" in key.lower() else "*****" for key, value in data.items()}
+
+        logging.debug(f"joplin-x-api: {method} request: path={path}, data={password_safe_data}")
         try:
             response: requests.models.Response = getattr(requests, method)(
                 f"{self.url}{path}",
