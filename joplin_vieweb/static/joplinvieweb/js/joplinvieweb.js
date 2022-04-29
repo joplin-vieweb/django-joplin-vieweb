@@ -42,6 +42,7 @@ class JoplinVieweb {
     }
     
     route_the_events() {
+        this.side_bar.on("please clear note view", () => { this.note_view.clear(); });
         this.side_bar.on("notebook_selected", () => { this.note_view.clear(); });
         this.side_bar.on("notebook_selected", (notebook_id) => {
             this.notes_list.get_from_notebook(notebook_id);
@@ -51,7 +52,7 @@ class JoplinVieweb {
         this.side_bar.on("sync_over", () => { 
             this.notes_list.refresh_and_select();
          });
-        this.side_bar.on("sync_started", () => {
+        this.side_bar.on("please clear note list and view", () => {
             this.note_view.clear();
             this.notes_list.clear();
          });
@@ -61,6 +62,7 @@ class JoplinVieweb {
         this.side_bar.on("refresh_lasts_notes", () => { this.notes_list.get_lasts_notes(); });
         this.side_bar.on("please hide notes history", () => { this.notes_list.hide_lasts() });
         this.side_bar.on("please show notes history", () => { this.notes_list.show_lasts() });
+        this.side_bar.on("get sync configuration", () => { this.get_synch_config(); });
         this.notes_list.on("note_selected", (note_data) => { this.note_view.get_note(note_data[0], note_data[1]) });
         this.notes_list.on("note_creation_request", () => { this.create_note(); } );
         this.notes_list.on("note_notebook_selected", (selection) => {
@@ -132,6 +134,21 @@ class JoplinVieweb {
             this.side_bar.notebook_addition(true);
             this.notes_list.note_addition(true);
         }
+    }
+
+    get_synch_config() {
+        $.get(
+            '/joplin/config/',
+            (data) => {
+                $("body").removeClass("loading");
+                this.note_view.display_note(data, "Joplin Vieweb configuration");
+                this.config_manager = new Configuration();
+                this.config_manager.init();
+            }).fail(() => {
+                clear_progress($("#note_view"));
+                console.log("error while getting conf");
+                this.note_view.display_note_error("Error while getting configuration.", "Joplin Vieweb configuration");
+          });
     }
 
 }

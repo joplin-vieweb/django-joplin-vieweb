@@ -443,3 +443,21 @@ animation-name: rotate_sync;
 #synch_output_err {
     color: red;
 }
+.waiting {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 68, 17, .1 ) 
+                url('../img/progress.gif') 
+                50% 50% 
+                no-repeat;
+    background-size: 128px;
+}
+body.loading .waiting {
+    overflow: hidden;
+    display: block;
+}

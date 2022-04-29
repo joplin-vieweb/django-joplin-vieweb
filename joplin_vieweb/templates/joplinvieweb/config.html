@@ -1,83 +1,24 @@
-{% load static %}
-
-{% load static %}
-
-<!DOCTYPE html>
-<html lang="en">
-<meta charset="UTF-8">
-<title>Joplin Vieweb Configuration</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="{% static 'joplinvieweb/css/joplin.css' %}">
-<link rel="stylesheet" href="{% static 'joplinvieweb/css/config.css' %}">
-<link rel="stylesheet" href="{% static 'joplinvieweb/css/style-icomoon.css' %}">
-<link rel="stylesheet" href="{% static 'joplinvieweb/css/jquery.modal.min.css' %}" />
-<link rel="stylesheet" href="{% static 'joplinvieweb/css/popup.css' %}" />
-<script src="{% static 'joplinvieweb/js/jquery-3.6.0.min.js' %}"></script>
-<script src="{% static 'joplinvieweb/js/jquery.modal.min.js' %}"></script>
-{% csrf_token %}
-<script>
-    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-</script>
-<script src="{% static 'joplinvieweb/js/config.js' %}"></script>
-<body>
-    <div id="joplin_container">
-        <div id="side_ctn">
-            <div id="notebooks_tree_ctn">
-                <div class="accordion_header header not_sync_header">
-                    <span class="icon-cog"></span>
-                    &nbsp;&nbsp;Settings
-                </div>
-                    <div class="accordion-inner" id="">
-                        Back to Joplin<br>
-                        <div id="back_action">
-                            <a href="/joplin"><div class="icon-circle-left"></div></a>
-                        </div>
-                    </div>
-            </div>
-        </div>
-
-    <div id="note_view_ctn">
-        <div class="note_view_header header">
-            <span id="note_header_title">Joplin Vieweb configuration</span>
-        </div>
-        <div id="note_view">
-            <h1>Joplin configuration</h1>
-            <h2>Synchronisation</h2>
-            <form method='post' id="config_form">
-                <label class="label" for="{{ form.target.id_for_label }}">Synchronisation target</label><br>
-                {{ form.target }}
-                <div id="config_fields">
-                    <br><label class="label">Synchronisation url</label><br>
-                    {{ form.path }}{{ form.message.errors }}<br>
-                    <span class="tip">Url is like that: https://your.nextcloud.com/remote.php/dav/files/user/Documents/JoplinSynchro</span>
-                    <br><label class="label" for="{{ form.username.id_for_label }}">Username</label><br>
-                    {{ form.username }}<br>
-                    <br><label class="label" for="{{ form.password.id_for_label }}">Password</label><br>
-                    {{ form.password }}<br>
-                    <br><label class="label" for="{{ form.interval.id_for_label }}">Interval</label><br>
-                    {{ form.interval }}
-                </div>
-            <br><br><br>
-            <input id="test_btn" type="button" value="Test">
-            <input class="submit" type="submit" value="Save">
-        </form>
+<h1>Joplin configuration</h1>
+<h2>Synchronisation</h2>
+<span class="toc" style="display: none"></span>
+<form method='post' id="config_form">{% csrf_token %}
+    <label class="label" for="{{ form.target.id_for_label }}">Synchronisation target</label><br>
+    {{ form.target }}
+    <div id="config_fields">
+        <br><label class="label">Synchronisation url</label><br>
+        {{ form.path }}{{ form.message.errors }}<br>
+        <span class="tip">Url is like that: https://your.nextcloud.com/remote.php/dav/files/user/Documents/JoplinSynchro</span>
+        <br><label class="label" for="{{ form.username.id_for_label }}">Username</label><br>
+        {{ form.username }}<br>
+        <br><label class="label" for="{{ form.password.id_for_label }}">Password</label><br>
+        {{ form.password }}<br>
+        <br><label class="label" for="{{ form.interval.id_for_label }}">Interval</label><br>
+        {{ form.interval }}
     </div>
-</div>
-
-
-
-
-
-
-</div>
-
-<!-- Modal stuff -->
-
-<!-- Error: New notebook creation without title -->
-<span id="config_joplin_popup_error" class="modal">
-    <div class="popup_title popup_title_error">Configuration error</div>
-    <p></p>
-</span>
+    <br><br><br>
+    <input id="test_btn" type="button" value="Test">
+    <input class="submit" type="submit" value="Save">
+</form>
 
 <!-- Test config success -->
 <span id="config_joplin_popup_test_success" class="modal">
@@ -90,8 +31,3 @@
     <div class="popup_title">Configuration save</div>
     <p>Configuration successfully saved</p>
 </span>
-
-<div class="waiting"></div>
-
-</body>
-</html> 

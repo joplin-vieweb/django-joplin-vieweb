@@ -1,35 +1,53 @@
-$(document).ready(function () {
-    
+class Configuration {
+    init() {
+        $("#config_form").submit((event) => { this.submit(event); })
+        $("#test_btn").click(() => { this.test() });
+
+        /**
+         * On target combo changed
+         */
+        $("#id_target").change((event) => {
+            this.form_fields(event.target.value);
+            
+        });
+
+        /**
+         * Init form_fields enable
+         */
+        this.form_fields($("#id_target").val());
+    }
+
     /**
-     * Submit ajax request
+     * Submit
      */
-    $("#config_form").submit(function (event) {
+    submit(event) {
         event.preventDefault();
         $("body").addClass("loading");
         $.ajax({
             type: "POST",
             url: "/joplin/config/",
             headers: { "X-CSRFToken": csrftoken },
-            data: $(this).serialize(),
+            data: $("#config_form").serialize(),
             success: (data) => { 
                 $("body").removeClass("loading");
                 if (!data["status"]) {
-                    display_error(data["message"]);
+                    this.display_error(data["message"]);
                 }
                 else {
                     $("#config_joplin_popup_save_success").modal({ fadeDuration: 100 });
                 } 
             },
-            error: (err) => { $("body").removeClass("loading"); display_error(err); },
+            error: (err) => { $("body").removeClass("loading"); this.display_error(err); },
             complete: () => { $("body").removeClass("loading"); }
         });
         return false;
-    });
-    
+    }
+
     /**
-     * Click on test
+     * Test config
      */
-    $("#test_btn").click(() => {
+    test() {
+        console.log("test config");
         // Trig the browser validation
         let config_form = $("#config_form");
         if (!config_form[0].checkValidity()) {
@@ -48,48 +66,41 @@ $(document).ready(function () {
             success: (data) => {
                 $("body").removeClass("loading");
                 if (!data["status"]) {
-                    display_error(data["message"]);
+                    this.display_error(data["message"]);
                 }
                 else {
                     $("#config_joplin_popup_test_success").modal({ fadeDuration: 100 });
                 }
             },
-            error: (err) => { $("body").removeClass("loading"); display_error(err); },
+            error: (err) => { $("body").removeClass("loading"); this.display_error(err); },
             complete: () => { $("body").removeClass("loading"); }
         });
-    });
+    }
 
     /**
-     * On target combo changed
+     * 
      */
-     $("#id_target").change((event) => {
-        form_fields(event.target.value);
-         
-     });
-
-     /**
-      * Init form_fields enable
-      */
-      form_fields($("#id_target").val());
-});
-
-function form_fields(selected_value) {
-    let fields = $("#config_fields");
-    let test_btn = $("#test_btn");
-    if (selected_value != "5") {
-       fields.addClass("disabled");
-       test_btn.prop("disabled",true)
-       fields.find(":input").attr("disabled", true);
-       
+     form_fields(selected_value) {
+        let fields = $("#config_fields");
+        let test_btn = $("#test_btn");
+        if (selected_value != "5") {
+           fields.addClass("disabled");
+           test_btn.prop("disabled",true)
+           fields.find(":input").attr("disabled", true);
+           
+        }
+        else {
+            fields.removeClass("disabled");
+            test_btn.prop("disabled",false)
+            fields.find(":input").attr("disabled", false);
+        }
     }
-    else {
-        fields.removeClass("disabled");
-        test_btn.prop("disabled",false)
-        fields.find(":input").attr("disabled", false);
-    }
-}
 
-function display_error(message) {
-    $("#config_joplin_popup_error p").html(message);
-    $("#config_joplin_popup_error").modal({ fadeDuration: 100 });
+    /**
+     * 
+     */
+     display_error(message) {
+        $("#config_joplin_popup_error p").html(message);
+        $("#config_joplin_popup_error").modal({ fadeDuration: 100 });
+    }
 }

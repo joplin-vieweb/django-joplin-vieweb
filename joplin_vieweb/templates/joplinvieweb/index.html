@@ -31,6 +31,7 @@
 <script src="{% static 'joplinvieweb/js/easymde.min.js' %}"></script>
 <script src="{% static 'joplinvieweb/js/NoteEditor.js' %}"></script>
 <script src="{% static 'joplinvieweb/js/NoteView.js' %}"></script>
+<script src="{% static 'joplinvieweb/js/config.js' %}"></script>
 <script src="{% static 'joplinvieweb/js/joplinvieweb.js' %}"></script>
 <script src="{% static 'joplinvieweb/js/draggabilly.pkgd.min.js' %}"></script>
 <script src="{% static 'joplinvieweb/js/jquery.modal.min.js' %}"></script>
@@ -77,12 +78,13 @@ const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
             </div>
         </div>
         <div id="settings_ctn">
-            <a href="/joplin/config">
-                <div class="accordion_header header">
-                    <span class="icon-cog"></span>
-                    &nbsp;&nbsp;Settings
-                </div>
-            </a>
+            <div class="accordion_header header not_sync_header">
+                <span class="icon-cog"></span>
+                &nbsp;&nbsp;Settings
+            </div>
+            <div class="accordion-inner" id="settings">
+               
+            </div>
         </div>
     </div>
     <div id="notes_list_ctn">
@@ -115,7 +117,16 @@ const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     </div>
 </div>
 
+<!-- Fuul screen waiting -->
+<div class="waiting"></div>
+
 <!-- Modal stuff -->
+
+<!-- Error: New notebook creation without title -->
+<span id="config_joplin_popup_error" class="modal">
+    <div class="popup_title popup_title_error">Configuration error</div>
+    <p></p>
+</span>
 
 <!-- New notebook creation -->
 <span id="notebook_create_popup" class="modal">

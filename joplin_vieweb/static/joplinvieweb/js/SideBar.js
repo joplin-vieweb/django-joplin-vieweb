@@ -10,10 +10,11 @@
  * - 'refresh_lasts_notes'
  * 
  * - 'sync_over' when a joplin synch has finished and notes list should be refreshed.
- * - "sync_started" when joplin sync starts and notes list and note view shoudl be cleared
- * 
+ * - "please clear note list and view"
+ * - "please clear note view"
  * - "please hide notes history"
  * - "please show notes history"
+ * - "get sync configuration"
  */
 class SideBar extends EventEmitter{
     constructor() {
@@ -306,7 +307,7 @@ class SideBar extends EventEmitter{
             this.sync_polling.process_sync_data("ongoing")
         }
         this.udpate_sync_started();
-        super.emit("sync_started");
+        super.emit("please clear note list and view");
         $.get(
         '/joplin/sync/do',
         () => {
@@ -333,12 +334,14 @@ class SideBar extends EventEmitter{
         this.accordion_opened = {
             "#notebooks_tree_ctn": true,
             "#tags_ctn": true,
-            "#sync_ctn": true
+            "#sync_ctn": true,
+            "#settings_ctn": true,
         };
         
         $("#notebooks_tree_ctn").css("flex", "1 1 auto");
         this.accordion_close("#tags_ctn", "#tags");
         this.accordion_close("#sync_ctn", "#sync");
+        this.accordion_close("#settings_ctn", "#settings");
         
         this.enable_header_click();
     }
@@ -412,11 +415,29 @@ class SideBar extends EventEmitter{
         if (elmt_ctn == "#sync_ctn") {
             this.create_sync_info_polling();
         }
+        else if (elmt_ctn == "#settings_ctn") {
+            this.init_settings();
+        }
+        else {
+            super.emit("please show notes history");
+            super.emit("please clear note view");
+        }
             
         this.accordion_opened[elmt_ctn] = true;         
         $(elmt_ctn).css("flex", "1 1 auto");
         $(elmt).toggle(400);
     }
+
+    /**
+     * User just clicked on settings tab
+     */
+     init_settings() {
+         $("body").addClass("loading");
+         super.emit("please hide notes history");
+         super.emit("please clear note list and view");
+         super.emit("please clear note view");
+         super.emit("get sync configuration")
+     }
     
     /**
      *
@@ -490,17 +511,27 @@ class SideBar extends EventEmitter{
             this.accordion_open("#notebooks_tree_ctn", "#notebooks_tree");
             this.accordion_close("#tags_ctn", "#tags");
             this.accordion_close("#sync_ctn", "#sync");
+            this.accordion_close("#settings_ctn", "#settings");
         }
         else if (parent_id == "tags_ctn") {
             this.accordion_close("#notebooks_tree_ctn", "#notebooks_tree");
             this.accordion_open("#tags_ctn", "#tags");
             this.accordion_close("#sync_ctn", "#sync");
+            this.accordion_close("#settings_ctn", "#settings");
         }
         else if (parent_id == "sync_ctn") {
             this.accordion_close("#notebooks_tree_ctn", "#notebooks_tree");
             this.accordion_close("#tags_ctn", "#tags");
             this.accordion_open("#sync_ctn", "#sync");
+            this.accordion_close("#settings_ctn", "#settings");
         }
+        else if (parent_id == "settings_ctn") {
+            this.accordion_close("#notebooks_tree_ctn", "#notebooks_tree");
+            this.accordion_close("#tags_ctn", "#tags");
+            this.accordion_close("#sync_ctn", "#sync");
+            this.accordion_open("#settings_ctn", "#settings");
+        }
+        
     }
 
     /**
