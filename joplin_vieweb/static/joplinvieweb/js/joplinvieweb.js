@@ -17,7 +17,10 @@ class JoplinVieweb {
             // is e pressed without modifiers?
             if (event.which == 69 && !event.metaKey && !event.altKey && !event.ctrlKey && !event.shiftKey) {
                 let pencil = $("#note_edit_edit");
-                if (pencil.length) {
+                let note_tags_edition_displayed = ($('#add_tag_edit').length !== 0);
+                let pencil_displayed = (pencil.length !== 0);
+                let modal_displayed = ($('.modal[style*="display: inline-block"]').length !== 0);
+                if (pencil_displayed && !modal_displayed && !note_tags_edition_displayed) {
                     pencil.click();
                     event.preventDefault();
                 }
