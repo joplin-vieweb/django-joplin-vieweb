@@ -25,7 +25,7 @@ then
     cp ./settings/settings-production.py /root/.config/joplin-vieweb/settings.py
     secret_key=$(python -c "from django.core.management.utils import get_random_secret_key;print(get_random_secret_key())")
     sed -i "s/secret_key_placeholder/$secret_key/" /root/.config/joplin-vieweb/settings.py
-    sed -i "s/ORIGINS_PLACEHOLDER/$ORIGINS/" /root/.config/joplin-vieweb/settings.py
+    sed -i "s~ORIGINS_PLACEHOLDER~$ORIGINS~" /root/.config/joplin-vieweb/settings.py
 fi
 ln -s /root/.config/joplin-vieweb/settings.py ./settings/settings.py
 export DJANGO_SETTINGS_MODULE=settings.settings
