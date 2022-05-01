@@ -141,7 +141,7 @@ class JoplinVieweb {
             '/joplin/config/',
             (data) => {
                 $("body").removeClass("loading");
-                this.note_view.display_note(data, "Joplin Vieweb configuration");
+                this.note_view.display_note(data, "Joplin Vieweb configuration", true);
                 this.config_manager = new Configuration();
                 this.config_manager.init();
             }).fail(() => {

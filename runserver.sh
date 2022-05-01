@@ -6,6 +6,7 @@ rm ./server/urls.py
 cp ./settings/urls-production.py ./server/urls.py
 if [ ! -e /root/.config/joplin-vieweb/settings.py ]
 then
+    echo "Let's create django settings files (origins: ${ORIGINS})"
     cp ./settings/settings-production.py /root/.config/joplin-vieweb/settings.py
     secret_key=$(python -c "from django.core.management.utils import get_random_secret_key;print(get_random_secret_key())")
     sed -i "s/secret_key_placeholder/$secret_key/" /root/.config/joplin-vieweb/settings.py

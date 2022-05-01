@@ -81,10 +81,10 @@ class NoteView extends EventEmitter {
     /**
      *
      */
-    display_note(data, note_name) {
+    display_note(data, note_name, force_public=false) {
         clear_progress($("#note_view"));
         $("#note_header_title").html(note_name);
-        if (this.is_public == false) {
+        if ((this.is_public == false) && (force_public == false)) {
             $("#note_view_header_right").append('<span id="note_edit_delete" class="note_edit_icon icon-trash-o"></span>');
             $("#note_edit_delete").on("click", () => { this.note_delete(this.current_note_id, note_name); });
             $("#note_view_header_right").append('<span id="note_edit_edit" class="note_edit_icon icon-pencil"></span>');
