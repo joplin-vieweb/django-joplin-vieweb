@@ -4,9 +4,24 @@ django-admin startproject server .
 rm ./server/settings.py
 rm ./server/urls.py
 cp ./settings/urls-production.py ./server/urls.py
+
+new_version=$(head -n 1 ./settings/settings-production.py)
+# We check if the settings file already exist and is the same version.
+if [ -e /root/.config/joplin-vieweb/settings.py ]
+then
+    # settings file exists. Let's check it's the same version as new. If not, we remove current settings.py to force a new one.
+    current_version=$(head -n 1 /root/.config/joplin-vieweb/settings.py)
+    if [[ "${current_version}" != ${new_version} ]]
+    then
+        echo "settigns file already exist, but in previous version (${current_version}), we delete it."
+        rm /root/.config/joplin-vieweb/settings.py
+        sync    
+    fi
+fi
+
 if [ ! -e /root/.config/joplin-vieweb/settings.py ]
 then
-    echo "Let's create django settings files (origins: ${ORIGINS})"
+    echo "Let's create django settings files (origins: ${ORIGINS}) in version ${new_version}"
     cp ./settings/settings-production.py /root/.config/joplin-vieweb/settings.py
     secret_key=$(python -c "from django.core.management.utils import get_random_secret_key;print(get_random_secret_key())")
     sed -i "s/secret_key_placeholder/$secret_key/" /root/.config/joplin-vieweb/settings.py

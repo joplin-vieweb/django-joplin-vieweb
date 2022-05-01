@@ -1,10 +1,9 @@
-# version: 1.0
+# version: 2.0
 from pathlib import Path
-
-import os
-
 import sys
 import pathlib
+from urllib.parse import urlparse
+
 joplin_app_folder = pathlib.Path(__file__).parent.parent.parent.absolute()
 sys.path.append(str(joplin_app_folder))
 # print(sys.path)
@@ -38,10 +37,10 @@ SECRET_KEY = 'secret_key_placeholder'
 DEBUG = False
 
 origins = [ORIGINS_PLACEHOLDER]
-ALLOWED_HOSTS = origins
-CSRF_TRUSTED_ORIGINS = []
+ALLOWED_HOSTS = []
 for origin in origins:
-     CSRF_TRUSTED_ORIGINS.append('https://' + origin)
+    ALLOWED_HOSTS.append(urlparse(origin).netloc.split(':')[0])
+CSRF_TRUSTED_ORIGINS = origins
 
 print("ALLOWED_HOSTS = ", ALLOWED_HOSTS)
 print("CSRF_TRUSTED_ORIGINS = ", CSRF_TRUSTED_ORIGINS)
