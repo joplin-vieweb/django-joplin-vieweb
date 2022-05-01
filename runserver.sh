@@ -13,9 +13,11 @@ then
     current_version=$(head -n 1 /root/.config/joplin-vieweb/settings.py)
     if [[ "${current_version}" != ${new_version} ]]
     then
-        echo "settigns file already exist, but in previous version (${current_version}), we delete it."
+        echo "settigns file already exists, but in previous version (${current_version}), we delete it."
         rm /root/.config/joplin-vieweb/settings.py
-        sync    
+        sync  
+    else
+        echo "settigns file already exists, in the last version (${current_version}), we use it."
     fi
 fi
 
@@ -25,7 +27,7 @@ then
     cp ./settings/settings-production.py /root/.config/joplin-vieweb/settings.py
     secret_key=$(python -c "from django.core.management.utils import get_random_secret_key;print(get_random_secret_key())")
     sed -i "s/secret_key_placeholder/$secret_key/" /root/.config/joplin-vieweb/settings.py
-    sed -i "s~ORIGINS_PLACEHOLDER~$ORIGINS~" /root/.config/joplin-vieweb/settings.py
+    sed -i "s~ORIGINS_PLACEHOLDER~${ORIGINS}~" /root/.config/joplin-vieweb/settings.py
 fi
 ln -s /root/.config/joplin-vieweb/settings.py ./settings/settings.py
 export DJANGO_SETTINGS_MODULE=settings.settings
