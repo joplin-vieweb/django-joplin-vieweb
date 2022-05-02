@@ -148,6 +148,7 @@ class JoplinVieweb {
                 this.config_manager = new Configuration();
                 this.config_manager.init();
             }).fail(() => {
+                $("body").removeClass("loading");
                 clear_progress($("#note_view"));
                 console.log("error while getting conf");
                 this.note_view.display_note_error("Error while getting configuration.", "Joplin Vieweb configuration");
