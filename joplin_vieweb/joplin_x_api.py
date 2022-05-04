@@ -39,3 +39,6 @@ class Api():
 
     def get_synch(self):
         return self._request("get", "joplin/synch").json()
+
+    def e2ee_decrypt(self, password):
+        return self._request("post", "joplin/e2ee/decrypt", data={"password": password})

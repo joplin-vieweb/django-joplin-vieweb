@@ -274,6 +274,7 @@ class SideBar extends EventEmitter{
         $("#sync_action").find("div").removeClass("animated rotate_sync");
         $("#sync_action").removeClass("animated");
         $("#sync-data").html("Last: " + data);
+        this.not_sync_header_back();
     }
     
     /**
@@ -282,7 +283,6 @@ class SideBar extends EventEmitter{
     reload_after_sync() {
         console.log("reload after sync");
         this.reset_sync_dirty();
-        this.not_sync_header_back();
         super.emit("please show notes history");
         if (this.sync_polling != null) {
             this.sync_polling.removeListener("sync_over", this.reload_side_bar_after_sync_handler);
@@ -300,7 +300,7 @@ class SideBar extends EventEmitter{
         console.log("Ask a joplin synchro");
         $("#sync_action").off("click");
         if (this.sync_polling != null) {
-            this.sync_polling.on("sync_over", this.reload_side_bar_after_sync_handler);
+            this.sync_polling.on("sync_over_OK", this.reload_side_bar_after_sync_handler);
             this.sync_polling.pause_emit();
             this.not_sync_header_readonly();
             super.emit("please hide notes history");
@@ -446,6 +446,39 @@ class SideBar extends EventEmitter{
         this.sync_polling = new SyncPolling();
         this.sync_polling.on("sync_started", () => { this.udpate_sync_started() });
         this.sync_polling.on("sync_over", (data) => { this.udpate_sync_over(data) });
+        this.sync_polling.on("sync_over_e2ee", () => { this.handle_e2ee(); });
+    }
+
+    handle_e2ee() {
+        // unregister events after modal is closed.
+        $("#e2ee_password_popup").on($.modal.CLOSE, function (event, modal) {
+            $("#e2ee_password_popup").find("*").off();
+            $("#e2ee_password_popup").off();
+        });
+
+        // cancel button close modal:
+        $("#e2ee_password_popup .button_Cancel").on("click", () => {
+            $("#e2ee_password_popup .button_Cancel").off("click");
+            $.modal.close();
+        });
+        
+        // OK button:
+        $("#e2ee_password_popup .button_OK").on("click", () => {
+            $("#e2ee_password_popup .button_OK").off("click");
+            $.modal.close();
+            $("body").addClass("loading");
+            $.ajax({
+                url: '/joplin/e2eepassword/',
+                type: 'post',
+                data: JSON.stringify({ "password": $("#e2ee_password_popup input").val()}),
+                headers: { "X-CSRFToken": csrftoken },
+                complete: () => {
+                    $("body").removeClass("loading");
+                    this.trig_joplin_sync();
+                }
+            });
+        });
+        $("#e2ee_password_popup").modal({ fadeDuration: 100 });
     }
     
     /**
@@ -753,7 +786,7 @@ class SyncPolling extends EventEmitter {
     poll() {
         $.getJSON(
         '/joplin/sync/',
-        (data) => { this.process_sync_data(data["info"]);
+        (data) => { this.process_sync_data(data["info"], data["output"]);
                     $("#synch_output_out").html(data["output"].replace(/\n/g, "<br />"));
                     $("#synch_output_err").html(data["error"].replace(/\n/g, "<br />"));
                 }
@@ -783,7 +816,7 @@ class SyncPolling extends EventEmitter {
     /**
      *
      */
-    process_sync_data(data) {
+    process_sync_data(data, output) {
         if (data == "ongoing") {
             console.log("ongoing..." + "sync_ongoing = " + this.sync_ongoing);
             if ((this.sync_ongoing == null) || (this.sync_ongoing == false)) {
@@ -803,6 +836,12 @@ class SyncPolling extends EventEmitter {
                 if (this.pause == false) {
                     console.log("emit sync_over");
                     super.emit('sync_over', data);
+                    if (output.includes("e2ee decrypt")) {
+                        super.emit('sync_over_e2ee');
+                    }
+                    else {
+                        super.emit('sync_over_OK');
+                    }
                 }
             }
         }

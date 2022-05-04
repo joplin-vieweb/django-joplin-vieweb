@@ -280,6 +280,20 @@ def do_sync(request):
     return HttpResponse("Sync started")
 
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
+def e2ee_password(request):
+    try:
+        if request.method == "POST":
+            password = json.loads(request.body)
+            password = password["password"]
+            joplin = Joplin()
+            ret = joplin.e2ee_decrypt(password)
+            return HttpResponse(ret)
+    except:
+        pass
+    return HttpResponseNotFound('')
+
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
 def upload_note_attachment(request, session_id):
     if request.method == 'POST':
         methods = dir(request.FILES)

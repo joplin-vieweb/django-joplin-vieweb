@@ -35,6 +35,7 @@ urlpatterns = [
     path('tags/<tag_id>/notes', views.tag_notes, name='tag notes'),
     path('sync/', views.sync_data, name='get synch data'),
     path('sync/do', views.do_sync, name='joplin synchro'),
+    path('e2eepassword/', views.e2ee_password, name='set e2ee password'),
     path('note_edit/upload/<str:session_id>', views.upload_note_attachment, name='upload note attachment'),
     path('edit_session/', views.edit_session, name='edit_session'),
     path('edit_session/<str:session_id>/update/<str:note_id>', views.edit_session_update_note, name='edit session update note'),

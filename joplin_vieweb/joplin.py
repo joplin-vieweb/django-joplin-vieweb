@@ -277,6 +277,10 @@ class Joplin:
     def get_synch(self):
         return self.joplin_x_api.get_synch()
 
+    def e2ee_decrypt(self, password):
+        return self.joplin_x_api.e2ee_decrypt(password)
+
+
 if __name__ == "__main__":
     nb1 = Notebook()
     nb1.id="id1"
