@@ -9,21 +9,6 @@ joplin_app_folder = pathlib.Path(__file__).parent.parent.parent.absolute()
 sys.path.append(str(joplin_app_folder))
 # print(sys.path)
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'DEBUG',
-    },
-}
-
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).parent.parent
 # print(f"BASE_DIR={BASE_DIR}")
