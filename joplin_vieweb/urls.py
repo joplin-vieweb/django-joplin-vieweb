@@ -42,5 +42,6 @@ urlpatterns = [
     path('edit_session_ressource/<str:session_id>/<str:file>', views.edit_session_ressource, name='get session ressource'),
     path('markdown_render/', views.render_markdown, name='render_markdown'),
     path('config/', views.config, name='config'),
-    path('config/test/', views.config_test, name='test config')
+    path('config/test/', views.config_test, name='test config'),
+    path('logout', views.joplin_logout, name='logout')
 ]

@@ -3,6 +3,7 @@ from joplin_vieweb.edit_session import EditSession
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 from django.conf import settings
 from django.http import JsonResponse
 
@@ -399,3 +400,7 @@ def config_test(request):
                 return JsonResponse({"status": False, "message": str(e)})
         else:
             return JsonResponse({"status": False, "message": f"Invalid data:\n{config_form.errors}"})
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED) 
+def joplin_logout(request):
+    logout(request)

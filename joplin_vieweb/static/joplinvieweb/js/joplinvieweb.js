@@ -4,6 +4,7 @@ class JoplinVieweb {
         this.note_view = new NoteView();
         this.side_bar = new SideBar();
         this.notes_list = new NotesList();
+        this.handle_logout();
         
         this.route_the_events();
 
@@ -153,6 +154,26 @@ class JoplinVieweb {
                 console.log("error while getting conf");
                 this.note_view.display_note_error("Error while getting configuration.", "Joplin Vieweb configuration");
           });
+    }
+
+    handle_logout() {
+        $("#logout").hover( /* mousenter */ () => {
+            $("#logout").css("opacity", "1");
+            $("#logout").css("height", "32px");
+            $("#logout").css("width", "32px");
+            $("#logout").css("font-size", "28px");
+            $("#logout .icon-exit").on("click", () => {
+                $("body").addClass("loading");
+                $.get('/joplin/logout').always(() => { window.location.replace("") });
+            })
+        },
+        /* mouseexit */ () => {
+            $("#logout").css("opacity", "0");
+            $("#logout").css("height", "10px");
+            $("#logout").css("width", "10px");
+            $("#logout").css("font-size", "1em");
+            $("#logout .icon-exit").off();
+        } );
     }
 
 }
