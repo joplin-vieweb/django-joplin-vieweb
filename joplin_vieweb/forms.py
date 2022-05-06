@@ -4,6 +4,7 @@ from django import forms
 SYNCH_TARGET_CHOICES = (
     (0, "Synchronisation disabled"),
     (5, "Nextcloud"),
+    (9, "Joplin server"),
     (1000, "You need another one? Ask on github issues."),
 )
 

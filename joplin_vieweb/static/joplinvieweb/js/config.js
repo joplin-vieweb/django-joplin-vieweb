@@ -6,6 +6,7 @@ class Configuration {
         /**
          * On target combo changed
          */
+        this.current_target = $("#id_target").val();
         $("#id_target").change((event) => {
             this.form_fields(event.target.value);
             
@@ -78,12 +79,18 @@ class Configuration {
     }
 
     /**
-     * 
+     * React to target selection change
      */
      form_fields(selected_value) {
+        if (this.current_target != selected_value) {
+            this.current_target = selected_value;
+            $("#id_path").val("");
+            $("#id_username").val("");
+            $("#id_password").val("");
+        }
         let fields = $("#config_fields");
         let test_btn = $("#test_btn");
-        if (selected_value != "5") {
+        if ((selected_value != "5") && (selected_value != "9")) {
            fields.addClass("disabled");
            test_btn.prop("disabled",true)
            fields.find(":input").attr("disabled", true);
@@ -93,6 +100,12 @@ class Configuration {
             fields.removeClass("disabled");
             test_btn.prop("disabled",false)
             fields.find(":input").attr("disabled", false);
+        }
+        if (selected_value != "5") {
+            $("#test_btn").hide();
+        }
+        else {
+            $("#test_btn").show();
         }
     }
 

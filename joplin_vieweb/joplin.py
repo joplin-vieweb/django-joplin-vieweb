@@ -252,13 +252,14 @@ class Joplin:
         joplin_config = {}
         password: str = joplin_vw_conf["password"]
         if password.replace("*", ""):
-            joplin_config["sync.5.password"] = password
+            joplin_config["sync.password"] = password
         joplin_config["sync.target"] = joplin_vw_conf["target"]
-        joplin_config["sync.5.path"] = joplin_vw_conf["path"]
-        joplin_config["sync.5.username"] = joplin_vw_conf["username"]
+        joplin_config["sync.path"] = joplin_vw_conf["path"]
+        joplin_config["sync.username"] = joplin_vw_conf["username"]
         joplin_config["sync.interval"] = joplin_vw_conf["interval"]
-        if joplin_config["sync.target"] != "5" and joplin_config["sync.target"] != "0":
-            raise Exception("Only nextcloud target is supported.")
+        supported_target = ["0", "5", "9"]
+        if not joplin_config["sync.target"] in supported_target:
+            raise Exception("Only nextcloud and joplin server targets are supported.")
         return joplin_config
 
 
