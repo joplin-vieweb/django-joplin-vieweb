@@ -4,6 +4,6 @@ Markdown>=3.3.4
 Pygments>=2.9.0
 beautifulsoup4>=4.9.3
 pymdown-extensions>=8.2
-hyperlink_preview>=1.0.3
+hyperlink_preview>=1.0.4
 joppy==0.0.5
 daphne
