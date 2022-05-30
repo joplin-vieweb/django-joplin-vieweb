@@ -1,10 +1,5 @@
 from django.conf import settings
 from pathlib import Path
-import os
-import datetime
-import logging
-import time
-import threading
 import re
 from django.urls import reverse
 import markdown
@@ -105,13 +100,15 @@ def md_to_html(md, for_preview):
     
     # Transform [ ] and [x] to checkboxes.
     if for_preview:
-        html = html.replace(
-            "<li>[ ] ", '<li><input type="checkbox" onclick="return false;">')
-        html = html.replace(
-            "<li>[x] ", '<li><input type="checkbox" checked onclick="return false;">')
+        html = html.replace("<li>[ ] ", '<li><input type="checkbox" onclick="return false;">')
+        html = html.replace("<li>\n<p>[ ] ", '<li><p><input type="checkbox" onclick="return false;">')
+        html = html.replace("<li>[x] ", '<li><input type="checkbox" checked onclick="return false;">')
+        html = html.replace("<li>\n<p>[x] ", '<li><p><input type="checkbox" checked onclick="return false;">')
     else:
         html = html.replace("<li>[ ] ", '<li><input type="checkbox">')
+        html = html.replace("<li>\n<p>[ ] ", '<li><p><input type="checkbox">')
         html = html.replace("<li>[x] ", '<li><input type="checkbox" checked>')
+        html = html.replace("<li>\n<p>[x] ", '<li><p><input type="checkbox" checked>')
 
     return html
 
