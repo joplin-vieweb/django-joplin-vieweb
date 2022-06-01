@@ -84,6 +84,7 @@ class NoteView extends EventEmitter {
     display_note(data, note_name, force_public=false) {
         let note_view_element = $("#note_view");
         clear_progress(note_view_element);
+        note_view_element.html(data);
         render_latex(note_view_element.get(0)); // Must be first ! Otherwise, break the following js interactions.
         $("#note_header_title").html(note_name);
         if ((this.is_public == false) && (force_public == false)) {
@@ -92,7 +93,6 @@ class NoteView extends EventEmitter {
             $("#note_view_header_right").append('<span id="note_edit_edit" class="note_edit_icon icon-pencil"></span>');
             $("#note_edit_edit").on("click", () => { this.note_edit(this.current_note_id, note_name); });
         }
-        note_view_element.html(data);
         note_view_element.addClass("border_note");
         if (note_view_element.find(".toc").html().includes("li") == false) {
             note_view_element.find(".toc").remove();
