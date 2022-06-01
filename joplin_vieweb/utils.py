@@ -3,7 +3,6 @@ from pathlib import Path
 import re
 from django.urls import reverse
 import markdown
-import subprocess
 
 def mimetype_to_icon(mimetype):
     type2icon = {
@@ -94,8 +93,44 @@ def markdown_vieweb_to_joplin(md):
     return md
 
 
+def placeholder_backslash_doller(md: str) -> str:
+    """Replace every \$ in given md by @@ANTISLASH_DOLLAR_PALCEHOLDER@@.
+    Pay attention to odd \ number: \\$ is not replaced
+      (nor \\\\$, but \\\$ is replaced by \\@@ANTISLASH_DOLLAR_PALCEHOLDER@@)
+
+    Args:
+        md (str): markdown to "escape"
+
+    Returns:
+        str: "escaped" markdown
+    """
+    index = 0
+    antislash_count = 0
+    antislash_dollar_indexes = []
+    for letter in md:
+        if letter == "$" and antislash_count % 2 == 1:
+            antislash_dollar_indexes.append(index)
+            antislash_count = 0
+        elif letter == "\\":
+            antislash_count = antislash_count + 1
+        else:
+            antislash_count = 0
+        index = index + 1
+
+    escape = ""
+    if not antislash_dollar_indexes:
+        escape = md
+    else:
+        last_index = 0
+        for one_index in antislash_dollar_indexes:
+            escape = escape + md[last_index:one_index - 1]
+            escape = escape + "@@ANTISLASH_DOLLAR_PALCEHOLDER@@"
+            last_index = one_index + 1
+        escape = escape + md[last_index:]
+    return escape
+
 def md_to_html(md, for_preview):
-    html = markdown.markdown(md, extensions=[
+    html = markdown.markdown(placeholder_backslash_doller(md), extensions=[
         'fenced_code', 'codehilite', 'toc', 'markdown.extensions.tables', 'pymdownx.mark', 'pymdownx.tabbed'])
     
     # Transform [ ] and [x] to checkboxes.

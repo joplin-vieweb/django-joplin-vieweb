@@ -82,7 +82,8 @@ class NoteView extends EventEmitter {
      *
      */
     display_note(data, note_name, force_public=false) {
-        clear_progress($("#note_view"));
+        let note_view_element = $("#note_view");
+        clear_progress(note_view_element);
         $("#note_header_title").html(note_name);
         if ((this.is_public == false) && (force_public == false)) {
             $("#note_view_header_right").append('<span id="note_edit_delete" class="note_edit_icon icon-trash-o"></span>');
@@ -90,14 +91,14 @@ class NoteView extends EventEmitter {
             $("#note_view_header_right").append('<span id="note_edit_edit" class="note_edit_icon icon-pencil"></span>');
             $("#note_edit_edit").on("click", () => { this.note_edit(this.current_note_id, note_name); });
         }
-        $("#note_view").html(data);
-        $("#note_view").addClass("border_note");
-        if ($("#note_view").find(".toc").html().includes("li") == false) {
-            $("#note_view").find(".toc").remove();
+        note_view_element.html(data);
+        note_view_element.addClass("border_note");
+        if (note_view_element.find(".toc").html().includes("li") == false) {
+            note_view_element.find(".toc").remove();
         }
         else {
-            $("#note_view").find(".toc").append('<div class="toc_ctrl"><span id="number_btn">#</span><span id="toggle_toc_btn"  class="icon-chevron-circle-down"></span> <span onclick="$(\'.toc\').remove();" class="icon-times-circle"></span>&nbsp;</div>');
-            $("#note_view").find(".toc").prepend('<center style="display: none;" id="toc_title">Content</center>');
+            note_view_element.find(".toc").append('<div class="toc_ctrl"><span id="number_btn">#</span><span id="toggle_toc_btn"  class="icon-chevron-circle-down"></span> <span onclick="$(\'.toc\').remove();" class="icon-times-circle"></span>&nbsp;</div>');
+            note_view_element.find(".toc").prepend('<center style="display: none;" id="toc_title">Content</center>');
             let note_view_position = $('#note_view').position();
             $(".toc").css("top", "calc(" + note_view_position.top.toString() + "px + 0.8em + 25px)");
             $(".toc").css("right", "20px");
@@ -106,7 +107,7 @@ class NoteView extends EventEmitter {
             $("#toggle_toc_btn").on("click", (ev) => this.toggle_toc(ev));
         }
 
-        $("#note_view").find(".codehilite").append('<center class="expend_code"><i>Click to expand...</i></center><div class="code_ctrl"><span class="toggle_code_btn icon-chevron-circle-down"></span></div>')
+        note_view_element.find(".codehilite").append('<center class="expend_code"><i>Click to expand...</i></center><div class="code_ctrl"><span class="toggle_code_btn icon-chevron-circle-down"></span></div>')
         $(".toggle_code_btn").on("click", (ev) => { // Let's fold
             this.fold_code($(ev.currentTarget));
         });
@@ -120,6 +121,8 @@ class NoteView extends EventEmitter {
         }
 
         this.add_hover_link();
+
+        render_latex(note_view_element.get(0));
     }
 
     /**

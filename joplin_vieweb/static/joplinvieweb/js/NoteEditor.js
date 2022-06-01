@@ -171,7 +171,7 @@ class NoteEditor extends EventEmitter {
                 type: 'post',
                 headers: { "X-CSRFToken": csrftoken },
                 data: JSON.stringify({ "markdown": md }),
-                success: (data) => { preview.innerHTML = data; },
+                success: (data) => { preview.innerHTML = data; render_latex(preview); },
                 error: () => {
                     preview.innerHTML = '<div><small style="color: darkred;">Error while rendering preview...<small></div>';
                 }
