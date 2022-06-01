@@ -13,11 +13,11 @@ then
     current_version=$(head -n 1 /root/.config/joplin-vieweb/settings.py)
     if [[ "${current_version}" != "${new_version}" ]]
     then
-        echo "settigns file already exists, but in previous version (${current_version}), we delete it."
+        echo "settings file already exists, but in previous version (${current_version}), we delete it."
         rm /root/.config/joplin-vieweb/settings.py
         sync  
     else
-        echo "settigns file already exists, in the last version (${current_version}), we use it."
+        echo "settings file already exists, in the last version (${current_version}), we use it."
     fi
 fi
 
