@@ -116,15 +116,24 @@ class EditSession:
         joplin = Joplin()
         session_path = EditSession.get_path(session_id)
         for one_attachment in attachment_files:
-            (id, title) = joplin.create_resource(
-                str(session_path / one_attachment), id_name[one_attachment])
-            attachment_data.append((id, title, one_attachment))
+            try:
+                (id, title) = joplin.create_resource(
+                    str(session_path / one_attachment), id_name[one_attachment])
+                attachment_data.append((id, title, one_attachment))
+            except:
+                attachment_data.append((None, "attachment failed", one_attachment))
         # let's update md for images:
         for one_id, one_title, one_attachment in attachment_data:
-            pattern = "\\[[^]]*]\\(/joplin/edit_session_ressource/{}/{}\\)".format(
-                re.escape(session_id), re.escape(one_attachment))
-            repl = "[{}](:/{})".format(one_title, one_id)
-            md = re.sub(pattern, repl, md)
+            pattern = f"\\[[^]]*]\\(/joplin/edit_session_ressource/{re.escape(session_id)}/{re.escape(one_attachment)}\\)"
+            if one_id is None:
+                md = re.sub(pattern, '<b><i><span class="error"> <span class="icon-warning"></span>'\
+                                     '<span class="icon-warning"></span><span class="icon-warning"></span>'\
+                                     ' attachment failed <span class="icon-warning"></span>'\
+                                     '<span class="icon-warning"></span><span class="icon-warning"></span>'\
+                                     '</span></i></b>', md)
+            else:
+                repl = f"[{one_title}](:/{one_id})"
+                md = re.sub(pattern, repl, md)
 
         return md
 

@@ -364,6 +364,7 @@ animation-name: rotate_sync;
 #note_view th {  background-color: rgba(255,68,17,0.25);}
 #note_view tr:hover {color: #ff4411;}
 #note_view li p {margin: 0; line-height: inherit;}
+#note_view .error { color:#e608b9; }
 
 .border_note {border-right: 1px solid #ff4411; border-left: 1px solid #ff4411;}
 
