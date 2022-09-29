@@ -274,7 +274,7 @@ class SideBar extends EventEmitter{
         $("#sync_action").find("div").removeClass("animated rotate_sync");
         $("#sync_action").removeClass("animated");
         const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute:'numeric', hour12: false };
-        display_date = new Date(data).toLocaleTimeString([] , options);
+        let display_date = new Date(data).toLocaleTimeString([] , options);
         $("#sync-data").html("Last: " + display_date);
     }
     
