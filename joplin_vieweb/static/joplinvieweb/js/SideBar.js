@@ -273,7 +273,9 @@ class SideBar extends EventEmitter{
         $("#sync_action").on("click",  () => { this.trig_joplin_sync(); });
         $("#sync_action").find("div").removeClass("animated rotate_sync");
         $("#sync_action").removeClass("animated");
-        $("#sync-data").html("Last: " + data);
+        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute:'numeric', hour12: false };
+        display_date = new Date(data).toLocaleTimeString([] , options);
+        $("#sync-data").html("Last: " + display_date);
     }
     
     /**
