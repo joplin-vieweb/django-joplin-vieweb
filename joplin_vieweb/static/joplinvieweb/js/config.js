@@ -90,7 +90,7 @@ class Configuration {
         }
         let fields = $("#config_fields");
         let test_btn = $("#test_btn");
-        if ((selected_value != "5") && (selected_value != "9")) {
+        if ((selected_value != "5") && (selected_value != "9") && (selected_value != "6")) {
            fields.addClass("disabled");
            test_btn.prop("disabled",true)
            fields.find(":input").attr("disabled", true);

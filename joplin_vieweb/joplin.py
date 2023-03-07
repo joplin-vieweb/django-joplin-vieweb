@@ -257,9 +257,9 @@ class Joplin:
         joplin_config["sync.path"] = joplin_vw_conf["path"]
         joplin_config["sync.username"] = joplin_vw_conf["username"]
         joplin_config["sync.interval"] = joplin_vw_conf["interval"]
-        supported_target = ["0", "5", "9"]
+        supported_target = ["0", "5", "6", "9"]
         if not joplin_config["sync.target"] in supported_target:
-            raise Exception("Only nextcloud and joplin server targets are supported.")
+            raise Exception("Only nextcloud, WebDAV and joplin server targets are supported.")
         return joplin_config
 
 
