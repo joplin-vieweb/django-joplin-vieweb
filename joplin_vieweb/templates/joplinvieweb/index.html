@@ -34,6 +34,7 @@
 <script src="{% static 'joplinvieweb/js/SideBar.js' %}"></script>
 <script src="{% static 'joplinvieweb/js/easymde.min.js' %}"></script>
 <script src="{% static 'joplinvieweb/js/NoteEditor.js' %}"></script>
+<script src="{% static 'joplinvieweb/js/Search.js' %}"></script>
 <script src="{% static 'joplinvieweb/js/NoteView.js' %}"></script>
 <script src="{% static 'joplinvieweb/js/config.js' %}"></script>
 <script src="{% static 'joplinvieweb/js/joplinvieweb.js' %}"></script>
@@ -115,7 +116,7 @@ const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     </div>
     <div id="note_view_ctn">
         <div class="note_view_header header">
-            <div id="note_view_header_left" class="toolbox_float_left"></div>
+            <div id="note_view_header_left" class="toolbox_float_left"><span class="icon-search joplin_search"></span></div>
             <div id="note_view_header_right" class="toolbox_float_right"></div>
             <span id="note_header_title"></span>
         </div>

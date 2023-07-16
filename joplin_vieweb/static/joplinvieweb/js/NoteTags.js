@@ -2,6 +2,7 @@
  * Emits:
  * - 'tags_edited'
  * - 'tags_changed'
+ * - 'display_public_link'
  */
 class NoteTags extends EventEmitter {
     constructor(note_view_elmt) {
@@ -41,8 +42,7 @@ class NoteTags extends EventEmitter {
         }
 
         if ($("#note_tags").html().includes(">public<")) {
-            $("#note_view_header_left").html('<a class="public_link" href="/joplin/notes/public/' + this.current_note_id + '" target="_blank"><span class="icon-link"></a>');
-            // $("#note_tags").prepend('<a class="public_link" href="/joplin/notes/public/' + this.current_note_id + '" target="_blank"><span class="icon-link"></a>')
+            super.emit("display_public_link");
         }
         $("#note_tags .icon-s-tags").on("click", () => this.start_tag_edition());
     }

@@ -12,32 +12,34 @@ class Notebook():
         self.id = "NO_ID"
         self.name = "NO_TITLE"
         self.children = []
-        
+
     def __str__(self):
         return "{} [{}]\n    {}".format(self.name, self.id, str(self.children))
-        
+
     def __repr__(self):
-        return self.__str__() 
+        return self.__str__()
+
 
 class ReprJsonEncoder(json.JSONEncoder):
     def default(self, obj):
-        if hasattr(obj,'reprJSON'):
+        if hasattr(obj, 'reprJSON'):
             return obj.reprJSON()
         else:
             return json.JSONEncoder.default(self, obj)
-            
+
+
 class NoteMetadata:
     def __init__(self):
         self.id = "NO_ID"
         self.name = "NO_NAME"
-        
+
     def __str__(self):
         return "Note metadata: {} [{}]".format(self.name, self.id)
+
 
 class Joplin:
 
     folders_by_parent_id = dict()
-
 
     def __init__(self):
         self.joplin = Api(
@@ -46,12 +48,12 @@ class Joplin:
         )
         self.joplin_x_api = joplin_x_api.Api(url=settings.JOPLIN_X_API_URL)
         self.rootNotebook = None
-        
+
     def parse_notebooks(self):
         self.rootNotebook = Notebook()
         self.rootNotebook.id = ""
         self.rootNotebook.name = "ROOT NOTEBOOK"
-        
+
         folders_by_id = {}
 
         folders = self.joplin.get_all_notebooks()
@@ -59,7 +61,7 @@ class Joplin:
 
         Joplin.folders_by_parent_id = dict()
         for one_folder in folders:
-            parent_id = one_folder["parent_id" ]
+            parent_id = one_folder["parent_id"]
             if parent_id in Joplin.folders_by_parent_id.keys():
                 Joplin.folders_by_parent_id[parent_id].append(one_folder)
             else:
@@ -67,7 +69,7 @@ class Joplin:
         logging.debug("folders_by_id = " + str(folders_by_id))
         logging.debug("folders_by_parent_id = " + str(Joplin.folders_by_parent_id))
         self.append_notebook(self.rootNotebook)
-        
+
     def append_notebook(self, notebook):
         """
         append to notebook every notebook with parent_id
@@ -97,11 +99,11 @@ class Joplin:
         descendents = [notebook_id]
         descendents = descendents + self.__get_descendents(notebook_id)
         return descendents
-        
+
     def __get_descendents(self, one_descendent):
         try:
             descendents = [one["id"] for one in Joplin.folders_by_parent_id[one_descendent]]
-        except:
+        except:  # noqa E722
             descendents = []
         for one_descendent in descendents:
             descendents = descendents + self.__get_descendents(one_descendent)
@@ -121,7 +123,7 @@ class Joplin:
                 new_note_metadata.name = one_note["title"]
                 notes_metadata.append(new_note_metadata)
         return notes_metadata
-                
+
     def get_notes_metadata(self, notebook_id):
         """
         Return a list of NoteMetadata for all notes which have given notebook_id as direct ancestor.
@@ -142,7 +144,7 @@ class Joplin:
         """
         Returns:
             a list of NoteMetadata for all notes with the given tag.
-        """ 
+        """
         notes_metadata = []
         for one_note in self.joplin.get_all_notes(tag_id=tag_id):
             new_note_metadata = NoteMetadata()
@@ -154,7 +156,7 @@ class Joplin:
     def get_note_body_name(self, note_id):
         note = self.joplin.get_note(note_id, fields="body,title")
         return (note["body"], note["title"])
-        
+
     def get_note_tags(self, note_id):
         tags = []
         for one_tag in self.joplin.get_all_tags(note_id=note_id):
@@ -166,11 +168,11 @@ class Joplin:
 
     def update_note_tags(self, note_id, tags):
         current_tags = self.get_note_tags(note_id)
-        current_tags_dict = {tag.name : tag.id for tag in current_tags}
+        current_tags_dict = {tag.name: tag.id for tag in current_tags}
         current_tags_names = current_tags_dict.keys()
 
         all_tags = self.get_tags()
-        all_tags_dict = {tag.name : tag.id for tag in all_tags}
+        all_tags_dict = {tag.name: tag.id for tag in all_tags}
         all_tags_names = all_tags_dict.keys()
 
         existing_tags_to_add = []
@@ -210,7 +212,7 @@ class Joplin:
         Get all tags
         """
         return self.joplin.get_all_tags()
-    
+
     def get_tags(self, with_notes=False):
         tags = []
         all_tags = self._get_tags()
@@ -220,12 +222,29 @@ class Joplin:
                 if not self.joplin.get_all_notes(tag_id=one_tag["id"]):
                     # if one_tag has no note, we don't add it.
                     add_one_tag = False
-            if add_one_tag: 
+            if add_one_tag:
                 new_tag_metadata = NoteMetadata()
                 new_tag_metadata.id = one_tag["id"]
                 new_tag_metadata.name = one_tag["title"]
                 tags.append(new_tag_metadata)
         return tags
+
+    def search(self, query):
+        res = self.joplin.search_all(query=query)
+        # Here res =
+        # [
+        #     {'id': 'dbd...083',
+        #      'parent_id': '1b08...3c9ea',
+        #      'title': '#27'},
+        #     {...}
+        # ]
+        for one_res in res:
+            parent_notebook = self.joplin.get_notebook(one_res['parent_id'])
+            try:
+                one_res['notebook_title'] = parent_notebook['title']
+            except:  # noqa
+                one_res['notebook_title'] = "?"
+        return res
 
     def create_resource(self, file_path, title):
         res_id = self.joplin.add_resource(filename=file_path, title=title)
@@ -262,7 +281,6 @@ class Joplin:
             raise Exception("Only nextcloud, WebDAV and joplin server targets are supported.")
         return joplin_config
 
-
     def set_config(self, config_data):
         # config_data are cleaned_data of a valid ConfigForm
         joplin_config = self._joplin_vieweb_to_joplin_conf(config_data)
@@ -278,13 +296,14 @@ class Joplin:
     def get_synch(self):
         return self.joplin_x_api.get_synch()
 
+
 if __name__ == "__main__":
     nb1 = Notebook()
-    nb1.id="id1"
-    nb1.name="tite1"
+    nb1.id = "id1"
+    nb1.name = "tite1"
     nb2 = Notebook()
-    nb2.id="id2"
-    nb2.name="tite2"
+    nb2.id = "id2"
+    nb2.name = "tite2"
     nb1.children.append(nb2)
-   
+
     print(json.dumps([nb1], default=lambda o: o.__dict__, indent=4))

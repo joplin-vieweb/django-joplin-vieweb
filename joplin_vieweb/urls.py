@@ -43,5 +43,7 @@ urlpatterns = [
     path('markdown_render/', views.render_markdown, name='render_markdown'),
     path('config/', views.config, name='config'),
     path('config/test/', views.config_test, name='test config'),
-    path('logout', views.joplin_logout, name='logout')
+    path('logout', views.joplin_logout, name='logout'),
+    path('search_html', views.search_html, name="search_html"),
+    path('search/<str:query>', views.search, name="search")
 ]

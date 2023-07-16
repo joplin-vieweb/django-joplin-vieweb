@@ -8,6 +8,7 @@
  *  - "note_created", param: new_note_id
  *  - "note_displayed"
  *  - "note_deleted"
+ *  - 'note_notebook_selected', param: [note_id, notebook_id]
  */
 class NoteView extends EventEmitter {
     constructor(is_public=false) {
@@ -15,6 +16,8 @@ class NoteView extends EventEmitter {
         this.is_public = is_public;
         this.set_current_note_id(null);
         this.current_note_name = null;
+        this.search_note = null;
+        $(".joplin_search").on("click", () => this.search() );
     }
     
     /**
@@ -24,7 +27,7 @@ class NoteView extends EventEmitter {
         super.emit("cleared");
         $("#note_view").removeClass("border_note");
         $("#note_view").html("");
-        $("#note_view_header_left").html("");
+        this.enable_public_link(false);
         $("#note_view_header_right").html("");
         $("#note_header_title").html("...");
         this.set_current_note_id(null);
@@ -45,6 +48,7 @@ class NoteView extends EventEmitter {
             this.reload_note_tags(note_id)
             this.tags.get_note_tags(note_id);
         });
+        this.tags.on("display_public_link", () => this.enable_public_link(true));
         this.tags.set_note_id(note_id);
     }
     
@@ -94,18 +98,21 @@ class NoteView extends EventEmitter {
             $("#note_edit_edit").on("click", () => { this.note_edit(this.current_note_id, note_name); });
         }
         note_view_element.addClass("border_note");
-        if (note_view_element.find(".toc").html().includes("li") == false) {
-            note_view_element.find(".toc").remove();
-        }
-        else {
-            note_view_element.find(".toc").append('<div class="toc_ctrl"><span id="number_btn">#</span><span id="toggle_toc_btn"  class="icon-chevron-circle-down"></span> <span onclick="$(\'.toc\').remove();" class="icon-times-circle"></span>&nbsp;</div>');
-            note_view_element.find(".toc").prepend('<center style="display: none;" id="toc_title">Content</center>');
-            let note_view_position = $('#note_view').position();
-            $(".toc").css("top", "calc(" + note_view_position.top.toString() + "px + 0.8em + 25px)");
-            $(".toc").css("right", "20px");
-            this.number_displayed = false;
-            $("#number_btn").on("click", (ev) => this.toggle_number());
-            $("#toggle_toc_btn").on("click", (ev) => this.toggle_toc(ev));
+        let toc = note_view_element.find(".toc");
+        if (toc.length > 0) {
+            if (toc.html().includes("li") == false) {
+                toc.remove();
+            }
+            else {
+                toc.append('<div class="toc_ctrl"><span id="number_btn">#</span><span id="toggle_toc_btn"  class="icon-chevron-circle-down"></span> <span onclick="$(\'.toc\').remove();" class="icon-times-circle"></span>&nbsp;</div>');
+                toc.prepend('<center style="display: none;" id="toc_title">Content</center>');
+                let note_view_position = $('#note_view').position();
+                $(".toc").css("top", "calc(" + note_view_position.top.toString() + "px + 0.8em + 25px)");
+                $(".toc").css("right", "20px");
+                this.number_displayed = false;
+                $("#number_btn").on("click", (ev) => this.toggle_number());
+                $("#toggle_toc_btn").on("click", (ev) => this.toggle_toc(ev));
+            }
         }
 
         note_view_element.find(".codehilite").append('<center class="expend_code"><i>Click to expand...</i></center><div class="code_ctrl"><span class="toggle_code_btn icon-chevron-circle-down"></span></div>')
@@ -479,6 +486,32 @@ class NoteView extends EventEmitter {
         return html;
     }
 
+    /**
+     * Add or remove public link in the left header
+     */
+    enable_public_link(enable) {
+        if (enable) {
+            $("#note_view_header_left").append('<a class="public_link" href="/joplin/notes/public/' + this.current_note_id + '" target="_blank"><span class="icon-link"></a>');
+        }
+        else {
+            $(".public_link").remove();
+        }
+    }
+
+    /**
+     * Display the search "note"
+     */
+    search() {
+        this.search_note = new Search();
+        this.clear();
+        this.search_note.on("display search note", (data) => {
+            this.display_note(data, "Search your notes...", true);
+        });
+        this.search_note.on("note_notebook_selected", (note_notebook_ids) => {
+            super.emit("note_notebook_selected", note_notebook_ids);
+        });
+        this.search_note.init();
+    }
 }
 
 

@@ -4,6 +4,9 @@ html, body {
     font-family: Tahoma, sans-serif;
     font-size: 0.9em;
 }
+.orange {
+    color: #ff4411;
+}
 #joplin_container {
     display: flex;
     align-items: stretch;
@@ -88,6 +91,10 @@ html, body {
     float: left;
     text-decoration: none;
     color:#ff4411;
+}
+.joplin_search {
+    margin-right: 5px;
+    cursor: pointer;
 }
 #notebooks_tree_inner {
     padding-left: 10px;
@@ -229,6 +236,7 @@ animation-name: rotate_sync;
     height: 100%;
     float: left;
     white-space: nowrap;
+    display: flex;
 }
 .toolbox_float_right {
     position: absolute;
@@ -476,4 +484,14 @@ body.loading .waiting {
     overflow: hidden;
     padding-top: 2px;
     color: #ff4411;
+}
+.btn {
+    border: 1px solid #f41;
+    border-radius: 5px;
+    background-color: #f41;
+    color: whitesmoke;
+    box-shadow: 2px 2px 2px #f414;
+    display: inline-block;
+    padding: 2px 20px 2px 20px;
+    cursor: pointer;
 }

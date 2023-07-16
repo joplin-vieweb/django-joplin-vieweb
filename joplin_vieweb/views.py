@@ -8,19 +8,17 @@ from django.conf import settings
 from django.http import JsonResponse
 
 from joplin_vieweb.forms import ConfigForm
-from .joplin import Joplin, ReprJsonEncoder
-import logging
+from .joplin import Joplin
 import json
-from bs4 import BeautifulSoup 
+from bs4 import BeautifulSoup
 from pathlib import Path
 import mimetypes
 from .utils import mimetype_to_icon, markdown_public_ressource, md_to_html
-import threading
-from .edit_session import EditSession
 from .lasts_notes import LastsNotes
 import glob
 import base64
 from . import hyperlink_preview_cache
+
 
 def conditional_decorator(dec, condition):
     def decorator(func):
@@ -30,24 +28,27 @@ def conditional_decorator(dec, condition):
         return dec(func)
     return decorator
 
+
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def index(request):
     return render(request, 'joplinvieweb/index.html')
-    
+
+
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def notebooks(request):
     joplin = Joplin()
-    joplin.parse_notebooks();
+    joplin.parse_notebooks()
     data = json.dumps(joplin.rootNotebook.children, default=lambda o: o.__dict__, indent=4)
     return HttpResponse(data)
-    
+
+
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def notes(request, notebook_id):
     joplin = Joplin()
-    if request.method == "GET": # list the notes of this notebook
+    if request.method == "GET":  # list the notes of this notebook
         notes_metadata = joplin.get_notes_metadata(notebook_id)
         return render(request, 'joplinvieweb/notes_list.html', {"notes_metadata": notes_metadata})
-    if request.method == "POST": # create a notebook
+    if request.method == "POST":  # create a notebook
         data = json.loads(request.body)
         title = data["title"]
         parent_id = data["parent_id"]
@@ -55,6 +56,7 @@ def notes(request, notebook_id):
             parent_id = ""
         new_notebook_id = joplin.create_notebook(parent_id, title)
         return HttpResponse(new_notebook_id)
+
 
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def notebook_delete(request, notebook_id):
@@ -68,26 +70,27 @@ def notebook_delete(request, notebook_id):
         return HttpResponse("")
     return HttpResponseNotFound("")
 
+
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def notebook_rename(request, notebook_id):
     if request.method == "POST":  # rename the notebook
         data = json.loads(request.body)
         title = data["title"]
         joplin = Joplin()
-        joplin.rename_notebook(notebook_id, title) 
+        joplin.rename_notebook(notebook_id, title)
         return HttpResponse("")
     return HttpResponseNotFound("")
 
 
-
-    
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def note(request, note_id, format="html"):
     return HttpResponse(note_body_name(note_id, format)[0])
-    
+
+
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def note_notebook(request, note_id):
     return HttpResponse(Joplin().get_note_notebook(note_id))
+
 
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def delete_note(request, note_id):
@@ -105,30 +108,30 @@ def render_markdown(request):
             md = md["markdown"]
             html = md_to_html(md, True)
             return HttpResponse(html)
-    except:
+    except:  # noqa E722
         pass
     return HttpResponseNotFound('')
 
 
 def note_body_name(note_id, format, public=False):
     note_body, note_name = Joplin().get_note_body_name(note_id)
-    
+
     if public:
         note_body = markdown_public_ressource(note_body)
 
     if format == "md":
         return (note_body, note_name)
-    
+
     note_body = '[TOC]\n\n' + note_body
     html = md_to_html(note_body, False)
-    
+
     # Finally we set an attachment image to the attachments
     # We search for <a href="/joplin/joplin_ressources"> or <a href=":/">
     soup = BeautifulSoup(html)
     for link in soup.findAll('a'):
         if "joplin_ressources" in link.get('href') or ":/" == link.get('href')[0:2]:
             mime_type_guess = mimetypes.guess_type(link.get_text())
-            img = soup.new_tag("span", **{'class':mimetype_to_icon(mime_type_guess)})
+            img = soup.new_tag("span", **{'class': mimetype_to_icon(mime_type_guess)})
             br = soup.new_tag("br")
             link.insert(0, br)
             link.insert(0, img)
@@ -147,20 +150,23 @@ def note_body_name(note_id, format, public=False):
     LastsNotes.set_last(note_id, note_name)
 
     return (html, note_name)
- 
+
+
 def public_note(request, note_id):
     joplin = Joplin()
     tags = joplin.get_note_tags(note_id)
-    if "public" in [tag.name for tag in tags] :
+    if "public" in [tag.name for tag in tags]:
         return render(request, 'joplinvieweb/public_note.html', {"note_id": note_id})
     return HttpResponse("not a public note")
-    
+
+
 def public_note_data(request, note_id):
     joplin = Joplin()
     tags = joplin.get_note_tags(note_id)
-    if "public" in [tag.name for tag in tags] :
+    if "public" in [tag.name for tag in tags]:
         body, name = note_body_name(note_id, format="html", public=True)
     return HttpResponse(json.dumps({"name": name, "body": body}))
+
 
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def note_checkboxes(request, note_id):
@@ -168,18 +174,21 @@ def note_checkboxes(request, note_id):
     cb = cb["cb"]
     Joplin().update_note_checkboxes(note_id, cb)
     return HttpResponse("")
-    
+
+
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def pin_note(request, note_id):
     if request.method == "POST":
         LastsNotes.pin_note(note_id, True)
         return HttpResponse("")
 
+
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def unpin_note(request, note_id):
     if request.method == "POST":
         LastsNotes.pin_note(note_id, False)
         return HttpResponse("")
+
 
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def note_tags(request, note_id):
@@ -195,28 +204,30 @@ def note_tags(request, note_id):
         return HttpResponse("")
 
 
-    
-    
-
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def notebooks_error(request):
     return render(request, 'joplinvieweb/notebooks_error.html', {})
-  
+
+
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def notebook_error(request, notebook_id):
     return render(request, 'joplinvieweb/notebook_error.html', {"notebook_id": notebook_id})
-  
+
+
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def tag_notes_error(request, tag_id):
     return render(request, 'joplinvieweb/tag_notes_error.html', {"tag_id": tag_id})
+
 
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def note_error(request):
     return render(request, 'joplinvieweb/note_error.html', {})
 
+
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def joplin_ressource(request, ressource_path):
     return joplin_public_ressource(request, ressource_path)
+
 
 def joplin_public_ressource(request, ressource_path):
     try:
@@ -240,57 +251,65 @@ def joplin_public_ressource(request, ressource_path):
         response = HttpResponseNotFound("")
 
     return response
-    
 
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def tags_error(request):
     return render(request, 'joplinvieweb/tags_error.html', {})
 
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def tags(request):
     joplin = Joplin()
     tags = joplin.get_tags(with_notes=True)
     return render(request, 'joplinvieweb/tags_list.html', {"tags": tags})
 
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def all_tags(request):
     joplin = Joplin()
     tags = joplin._get_tags()
     return HttpResponse(json.dumps(tags))
-    
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
+
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def tag_notes(request, tag_id):
     joplin = Joplin()
     notes_metadata = joplin.get_notes_metadata_from_tag(tag_id)
     return render(request, 'joplinvieweb/notes_list.html', {"notes_metadata": notes_metadata})
-    
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
+
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def sync_data(request):
     joplin = Joplin()
     joplin.get_synch()
     return HttpResponse(json.dumps(joplin.get_synch()))
 
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def do_sync(request):
     joplin = Joplin()
     joplin.start_synch()
     return HttpResponse("Sync started")
 
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def upload_note_attachment(request, session_id):
     if request.method == 'POST':
-        methods = dir(request.FILES)
         for key, value in request.FILES.items():
             attachment_id = EditSession.save_file(session_id, value)
-            return HttpResponse(json.dumps({"data": {"filePath": "/joplin/edit_session_ressource/{}/{}".format(session_id, attachment_id)}}))
+            return HttpResponse(json.dumps({"data": {"filePath": "/joplin/edit_session_ressource/"
+                                                     "{}/{}".format(session_id, attachment_id)}}))
 
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def edit_session(request):
     if request.method == 'POST':
         session_id = EditSession.create_session()
         return HttpResponse(session_id)
 
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def edit_session_ressource(request, session_id, file):
     try:
         ressources_path = EditSession.get_path(session_id)
@@ -307,7 +326,8 @@ def edit_session_ressource(request, session_id, file):
 
     return response
 
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def edit_session_update_note(request, session_id, note_id):
     if request.method == 'POST':
         note_data = json.loads(request.body)
@@ -319,8 +339,9 @@ def edit_session_update_note(request, session_id, note_id):
         joplin.update_note(note_id, title, md)
 
     return HttpResponse()
-    
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
+
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def edit_session_create_note(request, session_id, notebook_id):
     if request.method == 'POST':
         note_data = json.loads(request.body)
@@ -333,9 +354,11 @@ def edit_session_create_note(request, session_id, notebook_id):
 
     return HttpResponse(note_id)
 
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)  
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def get_lasts_notes(request):
     return HttpResponse(LastsNotes.read_lasts_notes())
+
 
 def get_hyperlink_preview(request, link):
     link = base64.b64decode(link.replace("_", "/").replace("-", "+")).decode('utf-8')
@@ -344,6 +367,7 @@ def get_hyperlink_preview(request, link):
         return HttpResponseNotFound("")
     return HttpResponse(json.dumps(data))
 
+
 def get_hyperlink_preview_image(request, link):
     link = base64.b64decode(link.replace("_", "/").replace("-", "+")).decode('utf-8')
     data = hyperlink_preview_cache.get_hyperlink_preview_image(link)
@@ -351,7 +375,8 @@ def get_hyperlink_preview_image(request, link):
         return HttpResponseNotFound("")
     return HttpResponse(json.dumps(data))
 
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED) 
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def config(request):
     joplin = Joplin()
     if request.method == 'GET':
@@ -362,20 +387,20 @@ def config(request):
                 config[key] = ""
         config_form = ConfigForm(config)
         return render(request, 'joplinvieweb/config.html', {"form": config_form})
-    
+
     if request.method == 'POST':
         config_form = ConfigForm(request.POST)
         supported_targets = ["5", "6",  "9"]
         if not config_form.data["target"] in supported_targets:
             try:
-                joplin.set_config({"target": "0", "path": ".", "username": ".", "password":".", "interval": "0"})
-                return JsonResponse({"status": True} )
+                joplin.set_config({"target": "0", "path": ".", "username": ".", "password": ".", "interval": "0"})
+                return JsonResponse({"status": True})
             except Exception as e:
                 return JsonResponse({"status": False, "message": str(e)})
         if config_form.is_valid():
             try:
                 joplin.set_config(config_form.cleaned_data)
-                return JsonResponse({"status": True} )
+                return JsonResponse({"status": True})
             except Exception as e:
                 return JsonResponse({"status": False, "message": str(e)})
         else:
@@ -384,7 +409,8 @@ def config(request):
                                     "message": "data are not valid: " + str(config_form.errors)
                                 })
 
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED) 
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def config_test(request):
     if request.method == 'POST':
         joplin = Joplin()
@@ -398,6 +424,29 @@ def config_test(request):
         else:
             return JsonResponse({"status": False, "message": f"Invalid data:\n{config_form.errors}"})
 
-@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED) 
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def joplin_logout(request):
     logout(request)
+
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
+def search_html(request):
+    return render(request, 'joplinvieweb/search.html', {})
+
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
+def search(request, query):
+    """_summary_
+    Returns:
+    html to display the search result
+        
+    """
+    if request.method != 'POST':
+        return JsonResponse({"status": False, "message": f"Unexpected request method {request.method}"})
+
+    search_value = base64.b64decode(query).decode('utf-8').strip()
+    joplin = Joplin()
+    res = joplin.search(search_value)
+    # res: [{'id': , 'parent_id': , 'title': , 'notebook_title': },}, {...}, ...]
+    return render(request, 'joplinvieweb/search.html', {'found': res, 'search': search_value})

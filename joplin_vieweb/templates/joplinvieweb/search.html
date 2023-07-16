@@ -1,0 +1,23 @@
+<p style="display: flex; gap: 10px; align-items: center;">
+    <span class="icon-search"></span> Search
+    <input id="search_input" type="text" style="flex-grow: 1;" value="{{ search }}" >
+    <span id="search_btn" class="btn"><span class="icon-search"></span></span>
+</p>
+{% if found %}
+        <table style="margin-top: 4em; width: 100%">
+            <thead>
+                <tr>
+                    <th style="width: 33%;"><span class="icon-s-book"></span>&nbsp;&nbsp;Notebook</th>
+                    <th style="width: 67%;"><span class="icon-sticky-note-o"></span>&nbsp;&nbsp;Note</th>
+                </tr>
+            </thead>
+            {% for item in found %}
+            <tr class="search_result" style="cursor: pointer;" data-notebook-id="{{ item.parent_id }}" data-note-id="{{ item.id }}">
+                <td style="width: 33%;">{{ item.notebook_title }}</td>
+                <td style="width: 67%;">{{ item.title }}</td>
+            </tr>
+            {% endfor %}
+    </table>
+{% elif search %}
+    <p>Nothing found.</p>
+{% endif %}
