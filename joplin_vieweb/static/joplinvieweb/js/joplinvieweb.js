@@ -13,7 +13,7 @@ class JoplinVieweb {
     }
 
     register_edit_keys() {
-        $(document).keydown(function (event) {
+        $(document).keydown((event) => {
             // console.log(event.ctrlKey + " " + event.which);
 
             // is f pressed ?
@@ -21,7 +21,7 @@ class JoplinVieweb {
                 let note_tags_edition_displayed = ($('#add_tag_edit').length !== 0);
                 let modal_displayed = ($('.modal[style*="display: inline-block"]').length !== 0);
                 let note_edition_ongoing = ($("#note_edit_commit").length !== 0);
-                let search_ongoing = ($("#search_btn").length !== 0);
+                let search_ongoing = (this.note_view.search_note != null) && (this.note_view.search_note.search_ongoing());
                 if (!modal_displayed && !note_tags_edition_displayed && !note_edition_ongoing && !search_ongoing) {
                     $(".joplin_search").click();
                     event.preventDefault();

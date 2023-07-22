@@ -8,6 +8,11 @@
 class Search extends EventEmitter {
     constructor() {
         super();
+        this._searching = false;
+    }
+
+    search_ongoing() {
+        return (($("#search_btn").length !== 0) || this._searching);
     }
 
     /**
@@ -55,13 +60,23 @@ class Search extends EventEmitter {
      * Do the search on server.
      */
     search(search_value) {
+        this._searching = true;
+        display_progress($("#note_view"));
         $.ajax({
             url: '/joplin/search/' + btoa(search_value),
             type: 'post',
             headers: { "X-CSRFToken": csrftoken },
             data: JSON.stringify({ "_": "_" }),
-            success: (data) => { this.display_search_page(data); },
-            error: () => { alert("Search fail"); }
+            success: (data) => {
+                this._searching = false;
+                clear_progress($("#note_view"));
+                this.display_search_page(data);
+            },
+            error: () => { 
+                this.init();
+                this._searching = false;
+                alert("Search fail");
+            },
         })
     }
 }

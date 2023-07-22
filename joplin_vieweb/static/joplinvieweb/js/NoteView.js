@@ -502,6 +502,9 @@ class NoteView extends EventEmitter {
      * Display the search "note"
      */
     search() {
+        if ((this.search_note != null) && (this.search_note._searching)) {
+            return;
+        }
         this.search_note = new Search();
         this.clear();
         this.search_note.on("display search note", (data) => {
