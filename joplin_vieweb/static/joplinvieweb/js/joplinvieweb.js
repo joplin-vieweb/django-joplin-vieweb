@@ -21,7 +21,8 @@ class JoplinVieweb {
                 let note_tags_edition_displayed = ($('#add_tag_edit').length !== 0);
                 let modal_displayed = ($('.modal[style*="display: inline-block"]').length !== 0);
                 let note_edition_ongoing = ($("#note_edit_commit").length !== 0);
-                if (!modal_displayed && !note_tags_edition_displayed && !note_edition_ongoing) {
+                let search_ongoing = ($("#search_btn").length !== 0);
+                if (!modal_displayed && !note_tags_edition_displayed && !note_edition_ongoing && !search_ongoing) {
                     $(".joplin_search").click();
                     event.preventDefault();
                 }
