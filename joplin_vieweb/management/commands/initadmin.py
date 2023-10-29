@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = 'Add a admin/admin accoutn if no user exists.'
+    help = 'Add a admin/admin account if no user exists.'
 
     def handle(self, *args, **options):
         User = get_user_model()
