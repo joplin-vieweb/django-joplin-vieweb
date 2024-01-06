@@ -19,10 +19,11 @@ class JoplinVieweb {
             // is f pressed ?
             if (event.which == 70 && !event.metaKey && !event.altKey && !event.ctrlKey && !event.shiftKey) {
                 let note_tags_edition_displayed = ($('#add_tag_edit').length !== 0);
+                let settings_screen_displayed = ($('#config_form').length !== 0);
                 let modal_displayed = ($('.modal[style*="display: inline-block"]').length !== 0);
                 let note_edition_ongoing = ($("#note_edit_commit").length !== 0);
                 let search_ongoing = (this.note_view.search_note != null) && (this.note_view.search_note.search_ongoing());
-                if (!modal_displayed && !note_tags_edition_displayed && !note_edition_ongoing && !search_ongoing) {
+                if (!modal_displayed && !note_tags_edition_displayed && !note_edition_ongoing && !search_ongoing && !settings_screen_displayed) {
                     $(".joplin_search").click();
                     event.preventDefault();
                 }

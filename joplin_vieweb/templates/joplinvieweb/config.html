@@ -5,9 +5,18 @@
     <label class="label" for="{{ form.target.id_for_label }}">Synchronisation target</label><br>
     {{ form.target }}
     <div id="config_fields">
-        <br><label class="label">Synchronisation url</label><br>
+        <br><label class="label" id="config_path_field">Synchronisation url</label><br>
         {{ form.path }}{{ form.message.errors }}<br>
-        <span class="tip">Url is like that: https://your.nextcloud.com/remote.php/dav/files/user/Documents/JoplinSynchro</span>
+        <span class="tip" id="config_url_tip">Url is like that: https://your.nextcloud.com/remote.php/dav/files/user/Documents/JoplinSynchro<br></span>
+
+        <div id="config_s3_fields">
+            <br><label class="label" for="{{ form.s3bucket.id_for_label }}">S3 bucket</label><br>
+            {{ form.s3bucket }}<br>
+            <span class="tip">Attention: If you change this location, make sure you copy all your content to it before syncing, otherwise all files will be removed! See the FAQ for more details: <a href="https://joplinapp.org/faq/">https://joplinapp.org/faq/</a><br></span>
+            <br><label class="label" for="{{ form.s3region.id_for_label }}">S3 region</label><br>
+            {{ form.s3region }}<br>
+        </div>
+
         <br><label class="label" for="{{ form.username.id_for_label }}">Username</label><br>
         {{ form.username }}<br>
         <br><label class="label" for="{{ form.password.id_for_label }}">Password</label><br>

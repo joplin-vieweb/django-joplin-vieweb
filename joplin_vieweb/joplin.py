@@ -276,9 +276,14 @@ class Joplin:
         joplin_config["sync.path"] = joplin_vw_conf["path"]
         joplin_config["sync.username"] = joplin_vw_conf["username"]
         joplin_config["sync.interval"] = joplin_vw_conf["interval"]
-        supported_target = ["0", "5", "6", "9"]
+        supported_target = ["0", "5", "6", "8", "9"]
         if not joplin_config["sync.target"] in supported_target:
-            raise Exception("Only nextcloud, WebDAV and joplin server targets are supported.")
+            raise Exception("Only nextcloud, S3, WebDAV and joplin server targets are supported.")
+        try:
+            joplin_config["sync.s3bucket"] = joplin_vw_conf["s3bucket"]
+            joplin_config["sync.s3region"] = joplin_vw_conf["s3region"]
+        except:  # noqa
+            pass
         return joplin_config
 
     def set_config(self, config_data):

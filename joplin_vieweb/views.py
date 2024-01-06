@@ -390,7 +390,7 @@ def config(request):
 
     if request.method == 'POST':
         config_form = ConfigForm(request.POST)
-        supported_targets = ["5", "6",  "9"]
+        supported_targets = ["5", "6",  "8", "9"]
         if not config_form.data["target"] in supported_targets:
             try:
                 joplin.set_config({"target": "0", "path": ".", "username": ".", "password": ".", "interval": "0"})
