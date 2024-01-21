@@ -114,13 +114,13 @@ def render_markdown(request):
 
 
 def note_body_name(note_id, format, public=False):
-    note_body, note_name = Joplin().get_note_body_name(note_id)
+    note_body, note_name, is_todo = Joplin().get_note_body_name_istodo(note_id)
 
     if public:
         note_body = markdown_public_ressource(note_body)
 
     if format == "md":
-        return (note_body, note_name)
+        return (note_body, note_name, is_todo)
 
     note_body = '[TOC]\n\n' + note_body
     html = md_to_html(note_body, False)
@@ -147,7 +147,7 @@ def note_body_name(note_id, format, public=False):
             one_link['target'] = ""
     html = str(soup)
 
-    LastsNotes.set_last(note_id, note_name)
+    LastsNotes.set_last(note_id, note_name, is_todo)
 
     return (html, note_name)
 
@@ -164,8 +164,8 @@ def public_note_data(request, note_id):
     joplin = Joplin()
     tags = joplin.get_note_tags(note_id)
     if "public" in [tag.name for tag in tags]:
-        body, name = note_body_name(note_id, format="html", public=True)
-    return HttpResponse(json.dumps({"name": name, "body": body}))
+        body, name, is_todo = note_body_name(note_id, format="html", public=True)
+    return HttpResponse(json.dumps({"name": name, "body": body, "is_todo": is_todo}))
 
 
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
@@ -334,9 +334,10 @@ def edit_session_update_note(request, session_id, note_id):
         # md = str(request.body.decode('utf-8'))
         md = note_data["markdown"]
         title = note_data["title"]
+        is_todo = True if note_data["is_todo"] == 1 else False
         md = EditSession.create_ressources_and_replace_md(session_id, md)
         joplin = Joplin()
-        joplin.update_note(note_id, title, md)
+        joplin.update_note(note_id, title, md, is_todo)
 
     return HttpResponse()
 
@@ -348,9 +349,10 @@ def edit_session_create_note(request, session_id, notebook_id):
         # md = str(request.body.decode('utf-8'))
         md = note_data["markdown"]
         title = note_data["title"]
+        is_todo = True if note_data["is_todo"] == 1 else False
         md = EditSession.create_ressources_and_replace_md(session_id, md)
         joplin = Joplin()
-        note_id = joplin.create_note(notebook_id, title, md)
+        note_id = joplin.create_note(notebook_id, title, md, is_todo)
 
     return HttpResponse(note_id)
 

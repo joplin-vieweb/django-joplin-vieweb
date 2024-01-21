@@ -495,3 +495,4 @@ body.loading .waiting {
     padding: 2px 20px 2px 20px;
     cursor: pointer;
 }
+#note_editor_type { font-size: 0.7em; vertical-align: middle; padding-bottom: 0.3em; }

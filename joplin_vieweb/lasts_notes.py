@@ -23,7 +23,13 @@ class LastsNotes:
             if not lasts_path.exists():
                 return "[]"
             with open(lasts_path, "r") as lasts_notes_mapping:
-                return lasts_notes_mapping.read()
+                lasts = json.loads(lasts_notes_mapping.read())
+                for one_note in lasts:
+                    try:
+                        one_note["is_todo"]
+                    except:  # noqa: handle management of tags for notes created before.
+                        one_note["is_todo"] = False
+                return json.dumps(lasts)
 
     @staticmethod
     def write_lasts_notes(lasts):
@@ -33,7 +39,7 @@ class LastsNotes:
                 lasts_notes_mapping.write(json.dumps(lasts))
 
     @staticmethod
-    def set_last(note_id, note_name):
+    def set_last(note_id, note_name, is_todo):
         lasts = json.loads(LastsNotes.read_lasts_notes())
 
         # remove item note_id if already present
@@ -47,9 +53,9 @@ class LastsNotes:
         if target_index != -1:
             del lasts[target_index]
 
-        # create an new list with new item, and update ranks of followers
+        # create a new list with new item, and update ranks of followers
         new_lasts = [{"id": note_id, "title": note_name,
-                      "pinned": target_pinned, "rank": 1}]
+                      "pinned": target_pinned, "rank": 1, "is_todo": is_todo}]
         rank = 2
         for one in lasts:
             one["rank"] = rank

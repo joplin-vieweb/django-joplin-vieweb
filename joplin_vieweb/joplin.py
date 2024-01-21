@@ -1,3 +1,5 @@
+from typing import Optional
+
 from joppy.api import Api
 import logging
 import json
@@ -32,18 +34,34 @@ class NoteMetadata:
     def __init__(self):
         self.id = "NO_ID"
         self.name = "NO_NAME"
+        self.is_todo: bool = False
+        self.todo_completed: bool = False
+
+    @classmethod
+    def from_joppy(cls, joppy_note):
+        note = cls()
+        note.id = joppy_note["id"]
+        note.name = joppy_note["title"]
+        note.is_todo = joppy_note["is_todo"] == 1
+        note.todo_completed = joppy_note["todo_completed"] != 0
+        return note
 
     def __str__(self):
-        return "Note metadata: {} [{}]".format(self.name, self.id)
+        return "Note metadata: {} [{}], is todo: [{}]{}".format(
+            self.name,
+            self.id,
+            self.is_todo,
+            "" if not self.is_todo else f", completed: [{self.todo_completed}]"
+        )
 
 
 class Joplin:
-
     folders_by_parent_id = dict()
 
-    def __init__(self):
+    def __init__(self, token: Optional[str] = None):
+        token = token if token is not None else get_api_token()
         self.joplin = Api(
-            token=get_api_token(),
+            token=token,
             url=settings.JOPLIN_DATA_API_URL
         )
         self.joplin_x_api = joplin_x_api.Api(url=settings.JOPLIN_X_API_URL)
@@ -116,12 +134,10 @@ class Joplin:
         descendents = self.get_notebook_descendants(notebook_id)
 
         notes_metadata = []
-        for one_note in self.joplin.get_all_notes():
+        # for one_note in self.joplin.get_all_notes():
+        for one_note in self.joplin.get_all_notes(fields="id,title,parent_id,is_todo,todo_completed"):
             if one_note["parent_id"] in descendents:
-                new_note_metadata = NoteMetadata()
-                new_note_metadata.id = one_note["id"]
-                new_note_metadata.name = one_note["title"]
-                notes_metadata.append(new_note_metadata)
+                notes_metadata.append(NoteMetadata.from_joppy(one_note))
         return notes_metadata
 
     def get_notes_metadata(self, notebook_id):
@@ -129,12 +145,9 @@ class Joplin:
         Return a list of NoteMetadata for all notes which have given notebook_id as direct ancestor.
         """
         notes_metadata = []
-        for one_note in self.joplin.get_all_notes():
+        for one_note in self.joplin.get_all_notes(fields="id,title,parent_id,is_todo,todo_completed"):
             if one_note["parent_id"] == notebook_id:
-                new_note_metadata = NoteMetadata()
-                new_note_metadata.id = one_note["id"]
-                new_note_metadata.name = one_note["title"]
-                notes_metadata.append(new_note_metadata)
+                notes_metadata.append(NoteMetadata.from_joppy(one_note))
         return notes_metadata
 
     def get_note_notebook(self, note_id):
@@ -146,16 +159,14 @@ class Joplin:
             a list of NoteMetadata for all notes with the given tag.
         """
         notes_metadata = []
-        for one_note in self.joplin.get_all_notes(tag_id=tag_id):
-            new_note_metadata = NoteMetadata()
-            new_note_metadata.id = one_note["id"]
-            new_note_metadata.name = one_note["title"]
-            notes_metadata.append(new_note_metadata)
+        for one_note in self.joplin.get_all_notes(tag_id=tag_id, fields="id,title,parent_id,is_todo,"
+                                                                        "todo_completed"):
+            notes_metadata.append(NoteMetadata.from_joppy(one_note))
         return notes_metadata
 
-    def get_note_body_name(self, note_id):
-        note = self.joplin.get_note(note_id, fields="body,title")
-        return (note["body"], note["title"])
+    def get_note_body_name_istodo(self, note_id):
+        note = self.joplin.get_note(note_id, fields="body,title,is_todo")
+        return (note["body"], note["title"], note["is_todo"] != 0)
 
     def get_note_tags(self, note_id):
         tags = []
@@ -204,7 +215,7 @@ class Joplin:
             if checked == 1:
                 cb_string = "- [x] "
             note_body = note_body[0:cb_index] + cb_string + \
-                note_body[cb_index + len(cb_string):]
+                        note_body[cb_index + len(cb_string):]
         self.joplin.modify_note(note_id, body=note_body)
 
     def _get_tags(self):
@@ -253,13 +264,13 @@ class Joplin:
     def get_ressource_name(self, resource_id):
         return self.joplin.get_resource(resource_id)["title"]
 
-    def update_note(self, note_id, title, md):
-        self.joplin.modify_note(note_id, title=title, body=md)
+    def update_note(self, note_id, title, md, is_todo):
+        self.joplin.modify_note(note_id, title=title, body=md, is_todo=1 if is_todo else 0)
 
-    def create_note(self, notebook_id, title, md):
+    def create_note(self, notebook_id, title, md, is_todo: bool):
         if not title:
             title = "Untitled"
-        return self.joplin.add_note(parent_id=notebook_id, title=title, body=md)
+        return self.joplin.add_note(parent_id=notebook_id, title=title, body=md, is_todo=1 if is_todo else 0)
 
     def delete_note(self, note_id):
         self.joplin.delete_note(note_id)
@@ -303,12 +314,18 @@ class Joplin:
 
 
 if __name__ == "__main__":
-    nb1 = Notebook()
-    nb1.id = "id1"
-    nb1.name = "tite1"
-    nb2 = Notebook()
-    nb2.id = "id2"
-    nb2.name = "tite2"
-    nb1.children.append(nb2)
+    from django.conf import settings
 
-    print(json.dumps([nb1], default=lambda o: o.__dict__, indent=4))
+    settings.configure(
+        JOPLIN_JOPLIN_PATH="/root/.config/joplin",
+        JOPLIN_X_API_URL="http://localhost:8081",
+        JOPLIN_DATA_API_URL="http://localhost:41184")
+
+    j = Joplin(token="078ede90250d17e9fc57487352d704a2798fffb03fd2efcae04c9e87bf664310508fb3ef9beebc861fc0690f6704a928ebc19210e2a0b066a183614ab2c9fb41")
+    j.parse_notebooks()
+    print(j.rootNotebook)
+
+    notes_md = j.get_notes_metadata_recursive("c253973bcd43415cac6aa1d750ec500e")
+    for one_note_metadata in notes_md:
+        print(str(one_note_metadata))
+

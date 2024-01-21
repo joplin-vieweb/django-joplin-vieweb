@@ -4,8 +4,9 @@
  *  - "commit"
  */
 class NoteEditor extends EventEmitter {
-    constructor(note_id, note_name, session_id) {
+    constructor(note_id, note_name, session_id, is_todo) {
         super();
+        this.is_todo = is_todo;
         this.note_id = note_id;
         if (note_name == null) {
             note_name = "Untitled"
@@ -16,6 +17,18 @@ class NoteEditor extends EventEmitter {
 
         this.render_timer = null;
         // console.log("Note editor created for note_id: [" + note_id + "] note name: [" + note_name + "] and session id: [" + session_id + "].");
+    }
+
+    /**
+     * in the top right on header: set 'note' or 'todo' as type.
+     */
+    set_note_type() {
+        if (this.is_todo) {
+            $("#note_editor_type").html("todo");
+        }
+        else {
+            $("#note_editor_type").html("note");
+        }
     }
 
     /**
@@ -30,7 +43,11 @@ class NoteEditor extends EventEmitter {
         md = md.replace(/\(:\//g, "(/joplin/:/");
         clear_progress($("#note_view"));
         $("#note_header_title").html('<input onfocus="$(this).select();" id="note_edit_title" type="text" value="' + this.note_name + '">');
-        $("#note_view_header_right").append('<span id="note_edit_cancel" class="note_edit_icon icon-times-rectangle"></span><span id="note_edit_commit" class="note_edit_icon icon-check-square"></span>');
+        $("#note_view_header_right").append(
+            '<span id="note_edit_cancel" class="note_edit_icon icon-times-rectangle"></span>' +
+            '<span id="note_edit_commit" class="note_edit_icon icon-check-square"></span>' +
+            '<span class="note_tag" style="margin-right: 12px;"><span class="tag_label" id="note_editor_type"></span></span>');
+        this.set_note_type();
         $("#note_view").html('<textarea id="note_editor" name="note_editor">' + md + '</textarea>');
         this.easyMDE = new EasyMDE({
             element: $('#note_editor')[0],
@@ -138,6 +155,24 @@ class NoteEditor extends EventEmitter {
                             action: 'https://facelessuser.github.io/pymdown-extensions/extensions/tabbed',
                             className: "fa fa-question-circle",
                             title: "Custom Markdown Guide",
+                        },
+                        {
+                            name: "Type: note",
+                            action: (editor) => {
+                                this.is_todo = false;
+                                this.set_note_type();
+                            },
+                            className: "fa fa-sticky-note-o",
+                            title: "Type: note",
+                        },
+                        {
+                            name: "Type: todo",
+                            action: (editor) => {
+                                this.is_todo = true;
+                                this.set_note_type();
+                            },
+                            className: "fa fa fa-check-square-o",
+                            title: "Type: todo",
                         }
                     ],
                     sideBySideFullscreen: false,
@@ -187,7 +222,7 @@ class NoteEditor extends EventEmitter {
             url: '/joplin/edit_session/' + this.session_id + '/update/' + this.note_id,
             type: 'post',
             headers: { "X-CSRFToken": csrftoken },
-            data: JSON.stringify({ "markdown": md, "title": $("#note_edit_title").val() }),
+            data: JSON.stringify({ "markdown": md, "title": $("#note_edit_title").val(), "is_todo": this.is_todo ? 1 : 0 }),
             complete: () => { super.emit("commit"); }
         })
     }
@@ -198,7 +233,7 @@ class NoteEditor extends EventEmitter {
             url: '/joplin/edit_session/' + this.session_id + '/create/' + this.notebook_id,
             type: 'post',
             headers: { "X-CSRFToken": csrftoken },
-            data: JSON.stringify({ "markdown": md, "title": $("#note_edit_title").val() }),
+            data: JSON.stringify({ "markdown": md, "title": $("#note_edit_title").val(), "is_todo": this.is_todo ? 1 : 0 }),
             complete: (data) => {
                 this.note_id = data.responseText;
                 super.emit("commit");

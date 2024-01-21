@@ -1,7 +1,12 @@
 {% if notes_metadata %}
     <ul>
     {% for one_note in notes_metadata %}
-        <li class="note_item" data-note-id="{{ one_note.id }}" data-note-name="{{ one_note.name }}"><a><span class="icon-sticky-note-o"></span>&nbsp;&nbsp;{{ one_note.name }}</a></li>
+        <li class="note_item" data-note-id="{{ one_note.id }}" data-note-name="{{ one_note.name }}" data-is-todo="{{ one_note.is_todo }}">
+            <a>
+                <span class="icon-{% if one_note.is_todo %}{% if one_note.todo_completed %}check-square-o{% else %}checkbox-unchecked{% endif %}{% else %}sticky-note-o{% endif %}"></span>
+                &nbsp;&nbsp;{{ one_note.name }}
+            </a>
+        </li>
     {% endfor %}
     </ul>
 {% else %}

@@ -81,7 +81,7 @@ class JoplinVieweb {
         this.side_bar.on("please hide notes history", () => { this.notes_list.hide_lasts() });
         this.side_bar.on("please show notes history", () => { this.notes_list.show_lasts() });
         this.side_bar.on("get sync configuration", () => { this.get_synch_config(); });
-        this.notes_list.on("note_selected", (note_data) => { this.note_view.get_note(note_data[0], note_data[1]) });
+        this.notes_list.on("note_selected", (note_data) => { this.note_view.get_note(note_data[0], note_data[1], note_data[2]) });
         this.notes_list.on("note_creation_request", () => { this.create_note(); } );
         this.notes_list.on("note_notebook_selected", (selection) => { this.select_note_and_notebook(selection); });
         this.note_view.on("tags_changed", () => {
@@ -155,7 +155,7 @@ class JoplinVieweb {
             '/joplin/config/',
             (data) => {
                 $("body").removeClass("loading");
-                this.note_view.display_note(data, "Joplin Vieweb configuration", true);
+                this.note_view.display_note(data, "Joplin Vieweb configuration", false, true);
                 this.config_manager = new Configuration();
                 this.config_manager.init();
             }).fail(() => {

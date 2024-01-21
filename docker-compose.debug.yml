@@ -26,9 +26,10 @@ services:
       - 5678:5678
 
   joplin-terminal-xapi:
-    build: 
-      context: ../joplin-terminal-xapi
-      dockerfile: Dockerfile-dev
+    image: deleteme:latest
+#    build:
+#      context: ../joplin-terminal-xapi
+#      dockerfile: Dockerfile-dev
     # environment:
     #   NODE_ENV: production
     #   NODE_ENV: development

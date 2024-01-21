@@ -55,7 +55,7 @@ class NoteView extends EventEmitter {
     /**
      *
      */
-    get_note(note_id, note_name) {
+    get_note(note_id, note_name, is_todo) {
         this.clear();
         this.reload_note_tags(note_id);
         display_progress($("#note_view"));
@@ -67,7 +67,7 @@ class NoteView extends EventEmitter {
                     this.current_note_name = note_name;
                     this.tags.get_note_tags(note_id);
                     super.emit("note_displayed");
-                    this.display_note(data, note_name);
+                    this.display_note(data, note_name, is_todo);
                   }
         )  .fail(() => {
             clear_progress($("#note_view"));
@@ -76,7 +76,7 @@ class NoteView extends EventEmitter {
                 '/joplin/note_error/',
                 (data) => {
                         this.display_note_error(data, note_name);
-                        $("#note_view").find(".icon-refresh").on("click", () => this.get_note(note_id, note_name) );
+                        $("#note_view").find(".icon-refresh").on("click", () => this.get_note(note_id, note_name, is_todo) );
                     }
             )
       });  
@@ -85,7 +85,7 @@ class NoteView extends EventEmitter {
     /**
      *
      */
-    display_note(data, note_name, force_public=false) {
+    display_note(data, note_name, is_todo, force_public=false) {
         let note_view_element = $("#note_view");
         clear_progress(note_view_element);
         note_view_element.html(data);
@@ -95,7 +95,7 @@ class NoteView extends EventEmitter {
             $("#note_view_header_right").append('<span id="note_edit_delete" class="note_edit_icon icon-trash-o"></span>');
             $("#note_edit_delete").on("click", () => { this.note_delete(this.current_note_id, note_name); });
             $("#note_view_header_right").append('<span id="note_edit_edit" class="note_edit_icon icon-pencil"></span>');
-            $("#note_edit_edit").on("click", () => { this.note_edit(this.current_note_id, note_name); });
+            $("#note_edit_edit").on("click", () => { this.note_edit(this.current_note_id, note_name, is_todo); });
         }
         note_view_element.addClass("border_note");
         let toc = note_view_element.find(".toc");
@@ -357,7 +357,7 @@ class NoteView extends EventEmitter {
     /**
      *
      */
-    note_edit(note_id, note_name) {
+    note_edit(note_id, note_name, is_todo) {
         this.clear();
         display_progress($("#note_view"));
 
@@ -377,7 +377,7 @@ class NoteView extends EventEmitter {
             })
         ).then(() => {
             super.emit("note_edit_started");
-            let note_editor = new NoteEditor(note_id, note_name, session_id);
+            let note_editor = new NoteEditor(note_id, note_name, session_id, is_todo);
             note_editor.init(md);
             note_editor.on("cancel", () => {
                 super.emit("note_edit_finished", false);
@@ -508,7 +508,7 @@ class NoteView extends EventEmitter {
         this.search_note = new Search();
         this.clear();
         this.search_note.on("display search note", (data) => {
-            this.display_note(data, "Search your notes...", true);
+            this.display_note(data, "Search your notes...", false, true);
         });
         this.search_note.on("note_notebook_selected", (note_notebook_ids) => {
             super.emit("note_notebook_selected", note_notebook_ids);

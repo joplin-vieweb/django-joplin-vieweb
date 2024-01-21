@@ -60,10 +60,11 @@ class NotesList extends EventEmitter {
     note_selected(ev) {
         let note_id = $(ev.currentTarget).data('note-id');
         let note_name = $(ev.currentTarget).data('note-name');
+        let is_todo = $(ev.currentTarget).data('is-todo');
         $(".note_item").removeClass("selected");
         $(ev.currentTarget).addClass("selected");
         this.last_selected_note_id = note_id;
-        super.emit("note_selected", [note_id, note_name]);
+        super.emit("note_selected", [note_id, note_name, is_todo]);
     }
     
     /**
@@ -126,7 +127,7 @@ class NotesList extends EventEmitter {
         let selected_li_target = $('#notes_list li[data-note-id="' + note_id + '"]');
         if (selected_li_target.length) { // else is not an error: when note is deleted.
             selected_li_target.addClass("selected");
-            super.emit("note_selected", [selected_li_target.data("note-id"), selected_li_target.data("note-name")]);
+            super.emit("note_selected", [selected_li_target.data("note-id"), selected_li_target.data("note-name"), selected_li_target.data("is-todo")]);
         }
     }
 
@@ -176,10 +177,26 @@ class NotesList extends EventEmitter {
         $("#lasts_notes ul").html("");
         for (let one_note of data) {
             let icon = "icon-sticky-note-o";
-            if (one_note["pinned"]) {
-                icon = "icon-push_pin";
+            if (one_note["is_todo"] == true) {
+                if (one_note["todo_completed"] == true) {
+                    icon = "icon-check-square-o";
+                } else {
+                    icon = "icon-checkbox-unchecked";
+                }
             }
-            $("#lasts_notes ul").append('<li data-note-id="' + one_note["id"] + '" data-note-name="' + one_note["title"] + '"><span class="' + icon + ' lasts_notes_item_status"></span>&nbsp;&nbsp;' + one_note["title"] + '</li>');
+            if (one_note["pinned"]) {
+                if (one_note["is_todo"] == true) {
+                    if (one_note["todo_completed"] == true) {
+                        icon = "icon-check-square is_pinned";
+                    } else {
+                        icon = "icon-stop2 is_pinned";
+                    }
+                }
+                else {
+                    icon = "icon-push_pin is_pinned";
+                }
+            }
+            $("#lasts_notes ul").append('<li data-note-id="' + one_note["id"] + '" data-note-name="' + one_note["title"] + '" data-is-todo="' + one_note["is_todo"] + '"><span class="' + icon + ' lasts_notes_item_status"></span>&nbsp;&nbsp;' + one_note["title"] + '</li>');
         }
 
         // register to clicks
@@ -203,7 +220,7 @@ class NotesList extends EventEmitter {
         $("#lasts_notes li").hover((ev) => {
             let pin_icon = "icon-pin";
             let icon_class = "pin_action";
-            if ($(ev.currentTarget).find(".lasts_notes_item_status").hasClass("icon-push_pin")) {
+            if ($(ev.currentTarget).find(".lasts_notes_item_status").hasClass("is_pinned")) {
                 pin_icon = "icon-pin-outline";
                 icon_class = "unpin_action"
             }
