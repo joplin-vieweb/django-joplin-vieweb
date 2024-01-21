@@ -94,10 +94,14 @@ class Configuration {
             if (this.current_target == "8") {
                 $("#config_url_tip").html("");
                 $("#config_s3_fields").show();
+                $("#id_s3bucket").prop("required", true);
+                $("#id_s3region").prop("required", true);
             }
             else {
                 $("#config_url_tip").html("Url is like that: https://your.nextcloud.com/remote.php/dav/files/user/Documents/JoplinSynchro<br>");
                 $("#config_s3_fields").hide();
+                $("#id_s3bucket").prop("required", false);
+                $("#id_s3region").prop("required", false);
             }
         }
         let fields = $("#config_fields");
