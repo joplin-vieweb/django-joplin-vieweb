@@ -81,7 +81,7 @@ class JoplinVieweb {
         this.side_bar.on("please hide notes history", () => { this.notes_list.hide_lasts() });
         this.side_bar.on("please show notes history", () => { this.notes_list.show_lasts() });
         this.side_bar.on("get sync configuration", () => { this.get_synch_config(); });
-        this.notes_list.on("note_selected", (note_data) => { this.note_view.get_note(note_data[0], note_data[1], note_data[2]) });
+        this.notes_list.on("note_selected", (note_data) => { this.note_view.get_note(note_data[0], note_data[1], note_data[2], note_data[3]) });
         this.notes_list.on("note_creation_request", () => { this.create_note(); } );
         this.notes_list.on("note_notebook_selected", (selection) => { this.select_note_and_notebook(selection); });
         this.note_view.on("tags_changed", () => {
@@ -93,9 +93,14 @@ class JoplinVieweb {
         this.note_view.on("cleared", () => { this.note_edition_set_ongoing(false); });
         this.note_view.on("note_edit_finished", (dirty) => {
             this.note_edition_set_ongoing(false);
+            this.note_view.clear();
+            this.notes_list.refresh_and_select();
             if (dirty) {
                 this.side_bar.set_sync_dirty();
             }
+            
+        });
+        this.note_view.on("todo_completed", () => {
             this.note_view.clear();
             this.notes_list.refresh_and_select();
         });
@@ -109,6 +114,8 @@ class JoplinVieweb {
         });
         this.note_view.on("note_deleted", () => {
             this.notes_list.get_lasts_notes();
+            this.note_view.clear();
+            this.notes_list.refresh_and_select();
         });
         this.note_view.on("note_notebook_selected", (selection) => { this.select_note_and_notebook(selection); });
     }
@@ -155,7 +162,7 @@ class JoplinVieweb {
             '/joplin/config/',
             (data) => {
                 $("body").removeClass("loading");
-                this.note_view.display_note(data, "Joplin Vieweb configuration", false, true);
+                this.note_view.display_note(data, "Joplin Vieweb configuration", false, false, true);
                 this.config_manager = new Configuration();
                 this.config_manager.init();
             }).fail(() => {

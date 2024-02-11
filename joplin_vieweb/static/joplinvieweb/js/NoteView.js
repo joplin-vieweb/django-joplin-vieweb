@@ -9,6 +9,7 @@
  *  - "note_displayed"
  *  - "note_deleted"
  *  - 'note_notebook_selected', param: [note_id, notebook_id]
+ *  - 'todo_completed'
  */
 class NoteView extends EventEmitter {
     constructor(is_public=false) {
@@ -55,7 +56,7 @@ class NoteView extends EventEmitter {
     /**
      *
      */
-    get_note(note_id, note_name, is_todo) {
+    get_note(note_id, note_name, is_todo, todo_completed) {
         this.clear();
         this.reload_note_tags(note_id);
         display_progress($("#note_view"));
@@ -63,12 +64,12 @@ class NoteView extends EventEmitter {
         $.get(
         '/joplin/notes/' + note_id + "/",
         (data) => {
-                    this.set_current_note_id(note_id);
-                    this.current_note_name = note_name;
-                    this.tags.get_note_tags(note_id);
-                    super.emit("note_displayed");
-                    this.display_note(data, note_name, is_todo);
-                  }
+            this.set_current_note_id(note_id);
+            this.current_note_name = note_name;
+            this.tags.get_note_tags(note_id);
+            super.emit("note_displayed");
+            this.display_note(data, note_name, is_todo, todo_completed);
+            }
         )  .fail(() => {
             clear_progress($("#note_view"));
             console.log("error while getting note " + note_id );
@@ -76,16 +77,33 @@ class NoteView extends EventEmitter {
                 '/joplin/note_error/',
                 (data) => {
                         this.display_note_error(data, note_name);
-                        $("#note_view").find(".icon-refresh").on("click", () => this.get_note(note_id, note_name, is_todo) );
+                        $("#note_view").find(".icon-refresh").on("click", () => this.get_note(note_id, note_name, is_todo, todo_completed) );
                     }
             )
       });  
+    }
+
+
+    /**
+     * 
+     */
+    mark_todo(note_id, completed) {
+        $.ajax({
+            url: '/joplin/notes/' + note_id + "/mark_todo",
+            type: 'post',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({"completed": completed, "note_name": this.current_note_name}),
+            headers: { "X-CSRFToken": csrftoken },
+            complete: () => {
+                super.emit("todo_completed");
+            }
+        });
     }
     
     /**
      *
      */
-    display_note(data, note_name, is_todo, force_public=false) {
+    display_note(data, note_name, is_todo, todo_completed, force_public=false) {
         let note_view_element = $("#note_view");
         clear_progress(note_view_element);
         note_view_element.html(data);
@@ -96,6 +114,17 @@ class NoteView extends EventEmitter {
             $("#note_edit_delete").on("click", () => { this.note_delete(this.current_note_id, note_name); });
             $("#note_view_header_right").append('<span id="note_edit_edit" class="note_edit_icon icon-pencil"></span>');
             $("#note_edit_edit").on("click", () => { this.note_edit(this.current_note_id, note_name, is_todo); });
+        }
+        if (is_todo) {
+            if (todo_completed == false) {
+                $("#note_view_header_right").append('<span id="note_todo_mark_as_done" \
+                class="icon-check-square-o note_edit_icon" title="Mark as done"></span>');
+                $("#note_todo_mark_as_done").on("click", () => { this.mark_todo(this.current_note_id, true); });
+            } else {
+                $("#note_view_header_right").append('<span id="note_todo_mark_as_done" \
+                class="icon-checkbox-unchecked note_edit_icon" title="Mark as todo"></span>');
+                $("#note_todo_mark_as_done").on("click", () => { this.mark_todo(this.current_note_id, false); });
+            }
         }
         note_view_element.addClass("border_note");
         let toc = note_view_element.find(".toc");
@@ -144,6 +173,7 @@ class NoteView extends EventEmitter {
             }
         });
     }
+
 
     /**
      * 
@@ -508,7 +538,7 @@ class NoteView extends EventEmitter {
         this.search_note = new Search();
         this.clear();
         this.search_note.on("display search note", (data) => {
-            this.display_note(data, "Search your notes...", false, true);
+            this.display_note(data, "Search your notes...", false, false, true);
         });
         this.search_note.on("note_notebook_selected", (note_notebook_ids) => {
             super.emit("note_notebook_selected", note_notebook_ids);

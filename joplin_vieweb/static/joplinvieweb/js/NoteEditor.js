@@ -223,7 +223,9 @@ class NoteEditor extends EventEmitter {
             type: 'post',
             headers: { "X-CSRFToken": csrftoken },
             data: JSON.stringify({ "markdown": md, "title": $("#note_edit_title").val(), "is_todo": this.is_todo ? 1 : 0 }),
-            complete: () => { super.emit("commit"); }
+            complete: () => { 
+                super.emit("commit"); 
+            }
         })
     }
 

@@ -114,7 +114,7 @@ def render_markdown(request):
 
 
 def note_body_name(note_id, format, public=False):
-    note_body, note_name, is_todo = Joplin().get_note_body_name_istodo(note_id)
+    note_body, note_name, is_todo, todo_completed = Joplin().get_note_body_name_istodo(note_id)
 
     if public:
         note_body = markdown_public_ressource(note_body)
@@ -147,7 +147,7 @@ def note_body_name(note_id, format, public=False):
             one_link['target'] = ""
     html = str(soup)
 
-    LastsNotes.set_last(note_id, note_name, is_todo)
+    LastsNotes.set_last(note_id, note_name, is_todo, todo_completed)
 
     return (html, note_name)
 
@@ -203,6 +203,17 @@ def note_tags(request, note_id):
         joplin.update_note_tags(note_id, tags)
         return HttpResponse("")
 
+
+@conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
+def mark_todo(request, note_id):
+    joplin = Joplin()
+    if request.method == "POST":
+        data = json.loads(request.body)
+        completed: bool = data["completed"]
+        note_name = data["note_name"]
+        joplin.mark_todo(note_id, completed)
+        LastsNotes.set_last(note_id, note_name, True, completed)
+        return HttpResponse("")
 
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
 def notebooks_error(request):

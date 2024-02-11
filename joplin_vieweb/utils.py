@@ -129,6 +129,7 @@ def placeholder_backslash_doller(md: str) -> str:
         escape = escape + md[last_index:]
     return escape
 
+
 def md_to_html(md, for_preview):
     html = markdown.markdown(placeholder_backslash_doller(md), extensions=[
         'fenced_code', 'codehilite', 'toc', 'markdown.extensions.tables', 'pymdownx.mark', 'pymdownx.tabbed'])

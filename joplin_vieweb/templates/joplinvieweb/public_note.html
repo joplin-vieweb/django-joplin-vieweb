@@ -29,7 +29,7 @@ $.getJSON(
         '/joplin/notes/public/data/{{note_id}}',
         (data) => {
             note_view = new NoteView(true);
-            note_view.display_note(data["body"], data["name"], data["is_todo"]);
+            note_view.display_note(data["body"], data["name"], data["is_todo"], data["todo_completed"]);
         }
         ).fail(() => {console.error("fail");})
 }

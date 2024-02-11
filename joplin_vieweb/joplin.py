@@ -165,8 +165,8 @@ class Joplin:
         return notes_metadata
 
     def get_note_body_name_istodo(self, note_id):
-        note = self.joplin.get_note(note_id, fields="body,title,is_todo")
-        return (note["body"], note["title"], note["is_todo"] != 0)
+        note = self.joplin.get_note(note_id, fields="body,title,is_todo,todo_completed")
+        return (note["body"], note["title"], note["is_todo"] != 0, note["todo_completed"] != 0)
 
     def get_note_tags(self, note_id):
         tags = []
@@ -267,6 +267,9 @@ class Joplin:
     def update_note(self, note_id, title, md, is_todo):
         self.joplin.modify_note(note_id, title=title, body=md, is_todo=1 if is_todo else 0)
 
+    def mark_todo(self, note_id, completed: bool):
+        self.joplin.modify_note(note_id, todo_completed=1 if completed else 0)
+
     def create_note(self, notebook_id, title, md, is_todo: bool):
         if not title:
             title = "Untitled"
@@ -328,4 +331,3 @@ if __name__ == "__main__":
     notes_md = j.get_notes_metadata_recursive("c253973bcd43415cac6aa1d750ec500e")
     for one_note_metadata in notes_md:
         print(str(one_note_metadata))
-

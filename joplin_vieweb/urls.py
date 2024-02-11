@@ -18,6 +18,7 @@ urlpatterns = [
     path('notes/public/<note_id>/', views.public_note, name='public note'),
     path('notes/public/data/<note_id>/', views.public_note_data, name='public note data'),
     path('notes/<note_id>/tags', views.note_tags, name='note'),
+    path('notes/<note_id>/mark_todo', views.mark_todo, name='mark_todo'),
     path('notes/<note_id>/checkboxes', views.note_checkboxes, name='update note checkboxes'),
     path('notes/<note_id>/pin', views.pin_note, name='pin a note'),
     path('notes/<note_id>/unpin', views.unpin_note, name='pin a note'),

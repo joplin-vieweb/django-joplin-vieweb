@@ -192,6 +192,9 @@ animation-name: rotate_sync;
     display:flex;
     flex-direction: column;
 }
+#notes_list_ctn [data-todo-completed="true" i] {
+    color: gray;
+}
 .notes_list {
     height: 100%;
 }

@@ -60,11 +60,12 @@ class NotesList extends EventEmitter {
     note_selected(ev) {
         let note_id = $(ev.currentTarget).data('note-id');
         let note_name = $(ev.currentTarget).data('note-name');
-        let is_todo = $(ev.currentTarget).data('is-todo');
+        let is_todo = $(ev.currentTarget).data('is-todo').toString().toLowerCase() === 'true';;
+        let todo_completed = $(ev.currentTarget).data('todo-completed').toString().toLowerCase() === 'true';;
         $(".note_item").removeClass("selected");
         $(ev.currentTarget).addClass("selected");
         this.last_selected_note_id = note_id;
-        super.emit("note_selected", [note_id, note_name, is_todo]);
+        super.emit("note_selected", [note_id, note_name, is_todo, todo_completed]);
     }
     
     /**
@@ -127,7 +128,12 @@ class NotesList extends EventEmitter {
         let selected_li_target = $('#notes_list li[data-note-id="' + note_id + '"]');
         if (selected_li_target.length) { // else is not an error: when note is deleted.
             selected_li_target.addClass("selected");
-            super.emit("note_selected", [selected_li_target.data("note-id"), selected_li_target.data("note-name"), selected_li_target.data("is-todo")]);
+            super.emit("note_selected", [
+                selected_li_target.data("note-id"),
+                selected_li_target.data("note-name"),
+                selected_li_target.data("is-todo").toString().toLowerCase() === 'true',
+                selected_li_target.data("todo-completed").toString().toLowerCase() === 'true'
+            ]);
         }
     }
 
@@ -196,7 +202,11 @@ class NotesList extends EventEmitter {
                     icon = "icon-push_pin is_pinned";
                 }
             }
-            $("#lasts_notes ul").append('<li data-note-id="' + one_note["id"] + '" data-note-name="' + one_note["title"] + '" data-is-todo="' + one_note["is_todo"] + '"><span class="' + icon + ' lasts_notes_item_status"></span>&nbsp;&nbsp;' + one_note["title"] + '</li>');
+            $("#lasts_notes ul").append('<li data-note-id="' + one_note["id"] + 
+                                        '" data-note-name="' + one_note["title"] + 
+                                        '" data-is-todo="' + one_note["is_todo"] + 
+                                        '" data-todo-completed="' + one_note["todo_completed"] +
+                                        '"><span class="' + icon + ' lasts_notes_item_status"></span>&nbsp;&nbsp;' + one_note["title"] + '</li>');
         }
 
         // register to clicks
