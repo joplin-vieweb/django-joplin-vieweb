@@ -119,11 +119,15 @@ class NoteView extends EventEmitter {
             if (todo_completed == false) {
                 $("#note_view_header_right").append('<span id="note_todo_mark_as_done" \
                 class="icon-check-square-o note_edit_icon" title="Mark as done"></span>');
-                $("#note_todo_mark_as_done").on("click", () => { this.mark_todo(this.current_note_id, true); });
+                if (this.is_public == false) {
+                    $("#note_todo_mark_as_done").on("click", () => { this.mark_todo(this.current_note_id, true); });
+                }
             } else {
                 $("#note_view_header_right").append('<span id="note_todo_mark_as_done" \
                 class="icon-checkbox-unchecked note_edit_icon" title="Mark as todo"></span>');
-                $("#note_todo_mark_as_done").on("click", () => { this.mark_todo(this.current_note_id, false); });
+                if (this.is_public == false) {
+                    $("#note_todo_mark_as_done").on("click", () => { this.mark_todo(this.current_note_id, false); });
+                }
             }
         }
         note_view_element.addClass("border_note");

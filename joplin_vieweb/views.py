@@ -120,7 +120,7 @@ def note_body_name(note_id, format, public=False):
         note_body = markdown_public_ressource(note_body)
 
     if format == "md":
-        return (note_body, note_name, is_todo)
+        return (note_body, note_name, is_todo, todo_completed)
 
     note_body = '[TOC]\n\n' + note_body
     html = md_to_html(note_body, False)
@@ -149,7 +149,7 @@ def note_body_name(note_id, format, public=False):
 
     LastsNotes.set_last(note_id, note_name, is_todo, todo_completed)
 
-    return (html, note_name)
+    return (html, note_name, is_todo, todo_completed)
 
 
 def public_note(request, note_id):
@@ -164,8 +164,8 @@ def public_note_data(request, note_id):
     joplin = Joplin()
     tags = joplin.get_note_tags(note_id)
     if "public" in [tag.name for tag in tags]:
-        body, name, is_todo = note_body_name(note_id, format="html", public=True)
-    return HttpResponse(json.dumps({"name": name, "body": body, "is_todo": is_todo}))
+        body, name, is_todo, todo_completed = note_body_name(note_id, format="html", public=True)
+    return HttpResponse(json.dumps({"name": name, "body": body, "is_todo": is_todo, "todo_completed": todo_completed}))
 
 
 @conditional_decorator(login_required, settings.JOPLIN_LOGIN_REQUIRED)
