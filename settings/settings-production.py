@@ -1,6 +1,7 @@
 # version: 2.0
 from pathlib import Path
 import sys
+import os
 import pathlib
 from urllib.parse import urlparse
 
@@ -141,7 +142,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Joplin variables
-JOPLIN_LOGIN_REQUIRED=True
+JOPLIN_LOGIN_REQUIRED = os.environ.get('JOPLIN_LOGIN_REQUIRED', 'True').lower() == 'true'
 JOPLIN_JOPLIN_PATH="/root/.config/joplin"
 JOPLIN_JOPLINVIEWEB_PATH="/root/.config/joplin-vieweb"
 JOPLIN_DATA_API_URL="http://joplin-terminal-xapi:8080"
